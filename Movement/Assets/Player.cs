@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 
 public class Player : MonoBehaviour {
-	public const float Speed = 10;
+	public float Speed = 10;
+
 	private void Update () {
 		// Project settings -> InputManager -> Axes allows changing names of each axis
 		// input will be -1 in horizontal axis if left or a is pressed, same with vertical axis

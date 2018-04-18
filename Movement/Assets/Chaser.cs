@@ -3,7 +3,7 @@
 public class Chaser : MonoBehaviour {
 
 	public Transform TargetTransform;
-	public const float Speed = 7;
+	public float Speed = 7;
 
 	void Update () {
 		// Substract our own position from the target
@@ -15,6 +15,7 @@ public class Chaser : MonoBehaviour {
 
 		float distanceToPlayer = displacementFromTarget.magnitude;
 
+		// Keeps distance between player and chaser
 		if (distanceToPlayer > 1.5f)
 			transform.Translate(movementAmount);
 	}

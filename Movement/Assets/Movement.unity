@@ -295,6 +295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TargetTransform: {fileID: 1928748705}
+  Speed: 10.6
 --- !u!23 &253747939
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -472,6 +473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 298de916c5f704c06b0f335a56f7d4d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Speed: 10
 --- !u!23 &1928748702
 MeshRenderer:
   m_ObjectHideFlags: 0
