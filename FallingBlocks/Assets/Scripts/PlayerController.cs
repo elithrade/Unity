@@ -23,8 +23,7 @@ public class PlayerController : MonoBehaviour
         transform.Translate(Vector2.right * velocity * Time.deltaTime);
 
         // Screen wraparound system
-        // By swap the sign of
-        // transform.position = new Vector2(_screenHalfWidthInWorldUnit, transform.position.y);
+        // By swap the sign of _screenHalfWidthInWorldUnit and
         // _screenHalfWidthInWorldUnit -= playerHalfSize;
         // a block system can be made instead
         if (transform.position.x < -_screenHalfWidthInWorldUnit)
@@ -32,5 +31,11 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.x > _screenHalfWidthInWorldUnit)
             transform.position = new Vector2(-_screenHalfWidthInWorldUnit, transform.position.y);
+    }
+
+    private void OnTriggerEnter2D(Collider2D triggerCollider)
+    {
+        if (triggerCollider.gameObject.tag == "Falling Block")
+            Destroy(gameObject);
     }
 }

@@ -31,7 +31,8 @@ public class BlockSpawner : MonoBehaviour
         float spawnSize = Random.Range(SpawnSizeMinMax.x, SpawnSizeMinMax.y);
 
         float randomX = Random.Range(-_screenHalfSizeInWorldUnits.x, _screenHalfSizeInWorldUnits.x);
-        // To make the block spawn outside of the screen y axis
+        // To make the block spawn outside of the screen y axis, plus the spawnSize
+        // This takes into account of block rotation as well
         float y = _screenHalfSizeInWorldUnits.y + spawnSize;
         Vector2 spawnPosition = new Vector2(randomX, y);
 
