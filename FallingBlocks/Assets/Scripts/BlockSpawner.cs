@@ -3,6 +3,10 @@
 public class BlockSpawner : MonoBehaviour
 {
     public GameObject FallingBlockPrefab;
+    // The spawn size min max is represented by a vector2 x is the min and y is the max
+    public Vector2 SpawnSizeMinMax;
+    public float SpawnAngleMax;
+
     private Vector2 _screenHalfSizeInWorldUnits;
     private float _secondsBetweenSpawnTime = 1;
     private float _nextSpawnTime;
@@ -19,15 +23,25 @@ public class BlockSpawner : MonoBehaviour
     {
         float now = Time.time;
 
-        if (now > _nextSpawnTime)
-        {
-            _nextSpawnTime = now + _secondsBetweenSpawnTime;
+        if (now <= _nextSpawnTime)
+            return;
 
-            float randomX = Random.Range(-_screenHalfSizeInWorldUnits.x, _screenHalfSizeInWorldUnits.x);
-            float y = _screenHalfSizeInWorldUnits.y;
-            Vector2 spawnPosition = new Vector2(randomX, y);
+        _nextSpawnTime = now + _secondsBetweenSpawnTime;
 
-            Instantiate(FallingBlockPrefab, spawnPosition, Quaternion.identity);
-        }
+        float spawnSize = Random.Range(SpawnSizeMinMax.x, SpawnSizeMinMax.y);
+
+        float randomX = Random.Range(-_screenHalfSizeInWorldUnits.x, _screenHalfSizeInWorldUnits.x);
+        // To make the block spawn outside of the screen y axis
+        float y = _screenHalfSizeInWorldUnits.y + spawnSize;
+        Vector2 spawnPosition = new Vector2(randomX, y);
+
+        // Note that in 2D view, the rotation is around the z axis
+        GameObject newBlock = Instantiate(
+            FallingBlockPrefab,
+            spawnPosition,
+            Quaternion.Euler(Vector3.forward * Random.Range(-SpawnAngleMax, SpawnAngleMax)));
+
+        // This applies tp both x and y axis
+        newBlock.transform.localScale = Vector2.one * spawnSize;
     }
 }
