@@ -5,10 +5,10 @@ public class BlockSpawner : MonoBehaviour
     public GameObject FallingBlockPrefab;
     // The spawn size min max is represented by a vector2 x is the min and y is the max
     public Vector2 SpawnSizeMinMax;
+    public Vector2 SecondsInSpawnTimeMinMax;
     public float SpawnAngleMax;
 
     private Vector2 _screenHalfSizeInWorldUnits;
-    private float _secondsBetweenSpawnTime = 1;
     private float _nextSpawnTime;
 
     private void Start ()
@@ -22,11 +22,14 @@ public class BlockSpawner : MonoBehaviour
     private void Update ()
     {
         float now = Time.time;
-
         if (now <= _nextSpawnTime)
             return;
 
-        _nextSpawnTime = now + _secondsBetweenSpawnTime;
+        // User linear interpolation to figure out the spawn time
+        // base on the current difficulty, y is max and x is min i.e. 1 .. 0
+        float currentDifficulty = Difficulty.GetDifficultyPercentage();
+        float spawnTime = Mathf.Lerp(SecondsInSpawnTimeMinMax.y, SecondsInSpawnTimeMinMax.x, currentDifficulty);
+        _nextSpawnTime = now + spawnTime;
 
         float spawnSize = Random.Range(SpawnSizeMinMax.x, SpawnSizeMinMax.y);
 

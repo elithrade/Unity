@@ -147,7 +147,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: c0f87bfe04b0643878ea2018739cc8b6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -202,7 +202,7 @@ Transform:
   m_GameObject: {fileID: 332028948}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -4, z: 0}
-  m_LocalScale: {x: 0.25, y: 1, z: 1}
+  m_LocalScale: {x: 0.1, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -274,6 +274,7 @@ MonoBehaviour:
   FallingBlockPrefab: {fileID: 1561964835560014, guid: c636bda6083dc49e9ac109d324471931,
     type: 2}
   SpawnSizeMinMax: {x: 0.5, y: 2.5}
+  SecondsInSpawnTimeMinMax: {x: 0.1, y: 1}
   SpawnAngleMax: 15
 --- !u!4 &1801813931
 Transform:
@@ -329,7 +330,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.0038927335, g: 0.025254706, b: 0.058823526, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0

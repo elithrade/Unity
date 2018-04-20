@@ -2,10 +2,16 @@
 
 public class FallingBlock : MonoBehaviour
 {
-    public float Speed = 7;
+    public Vector2 FallingSpeedMinMax;
+    private float _speed;
+
+    void Start()
+    {
+        _speed = Mathf.Lerp(FallingSpeedMinMax.x, FallingSpeedMinMax.y, Difficulty.GetDifficultyPercentage());
+    }
     
     void Update ()
     {
-        transform.Translate(Vector2.down * Speed * Time.deltaTime);
+        transform.Translate(Vector2.down * _speed * Time.deltaTime);
     }
 }
