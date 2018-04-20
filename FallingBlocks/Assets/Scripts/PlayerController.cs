@@ -4,7 +4,7 @@ public class PlayerController : MonoBehaviour
 {
     public float Speed = 7;
     private float _screenHalfWidthInWorldUnit;
-    
+
     private void Start()
     {
         // Aspect ratio = screen width / screen height

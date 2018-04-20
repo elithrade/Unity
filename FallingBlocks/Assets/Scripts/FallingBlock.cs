@@ -13,7 +13,7 @@ public class FallingBlock : MonoBehaviour
         _fallingBoundaryThreshold = -Camera.main.orthographicSize - transform.localScale.y;
         _speed = Mathf.Lerp(FallingSpeedMinMax.x, FallingSpeedMinMax.y, Difficulty.GetDifficultyPercentage());
     }
-    
+
     void Update ()
     {
         transform.Translate(Vector2.down * _speed * Time.deltaTime);
