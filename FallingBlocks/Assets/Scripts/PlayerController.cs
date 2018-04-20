@@ -23,6 +23,10 @@ public class PlayerController : MonoBehaviour
         transform.Translate(Vector2.right * velocity * Time.deltaTime);
 
         // Screen wraparound system
+        // By swap the sign of
+        // transform.position = new Vector2(_screenHalfWidthInWorldUnit, transform.position.y);
+        // _screenHalfWidthInWorldUnit -= playerHalfSize;
+        // a block system can be made instead
         if (transform.position.x < -_screenHalfWidthInWorldUnit)
             transform.position = new Vector2(_screenHalfWidthInWorldUnit, transform.position.y);
 
