@@ -2,6 +2,8 @@
 
 public class PlayerController : MonoBehaviour
 {
+    public event System.Action OnPlayerDeath;
+
     public float Speed = 7;
     private float _screenHalfWidthInWorldUnit;
 
@@ -36,6 +38,11 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D triggerCollider)
     {
         if (triggerCollider.gameObject.tag == "Falling Block")
+        {
+            if (OnPlayerDeath != null)
+                OnPlayerDeath();
+
             Destroy(gameObject);
+        }
     }
 }
