@@ -18,7 +18,7 @@ public class Test01 : MonoBehaviour
             // Collider is a very useful property we can filter
             // hit info based on which object the ray hits and
             // we can do what ever we want with the hitted object
-            print(hitInfo.collider.gameObject.name);
+            Destroy(hitInfo.collider.gameObject);
             Debug.DrawLine(ray.origin, hitInfo.point, Color.red);
         }
         else
