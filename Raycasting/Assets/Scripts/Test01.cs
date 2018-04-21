@@ -8,7 +8,7 @@ public class Test01 : MonoBehaviour
     {
         Ray ray = new Ray(transform.position, transform.forward);
 
-        float maxDistance = 100;
+        float maxDistance = 120;
 
         // Mask can be created and specified on the object we want to collide with
         // Note that the object needs to have a collider attached
