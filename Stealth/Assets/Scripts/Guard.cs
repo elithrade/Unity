@@ -52,13 +52,16 @@ public class Guard : MonoBehaviour
     {
         Vector3 directionToTarget = (lookAt - transform.position).normalized;
         float angle = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
-        // Note this doesn't work with angle greater than 180
+        // Unit unit circle is 90 degrees off clockwise
         float targetAngle = 90 - angle;
         // y is the axis we rotate around
-        while (Mathf.DeltaAngle(transform.eulerAngles.y, targetAngle) > 0.05f)
+        float deltaAngle = Mathf.DeltaAngle(transform.eulerAngles.y, targetAngle);
+        // deltaAngle will be negative is the turn is anti-clockwise
+        while (Mathf.Abs(deltaAngle) > 0.05f)
         {
             float turnAngle = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetAngle, TurnSpeed * Time.deltaTime);
             transform.eulerAngles = Vector3.up * turnAngle;
+            deltaAngle = Mathf.DeltaAngle(transform.eulerAngles.y, targetAngle);
             yield return null;
         }
     }
