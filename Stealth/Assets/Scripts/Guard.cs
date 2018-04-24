@@ -53,6 +53,7 @@ public class Guard : MonoBehaviour
         Vector3 directionToTarget = (lookAt - transform.position).normalized;
         float angle = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
         // Unit unit circle is 90 degrees off clockwise
+        // You can do 90 - θ to get the correct angle, or you can swap the axes. So either do 90 - atan2(y,x); or simply atan2(x,y)
         float targetAngle = 90 - angle;
         // y is the axis we rotate around
         float deltaAngle = Mathf.DeltaAngle(transform.eulerAngles.y, targetAngle);
