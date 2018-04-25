@@ -4,7 +4,7 @@ public class Test02 : MonoBehaviour
 {
     public Transform ObjectToPlace;
     public Camera GameCamera;
-    
+
     void Update ()
     {
         Ray ray = GameCamera.ScreenPointToRay(Input.mousePosition);
