@@ -10,8 +10,24 @@ public class Player : MonoBehaviour
     private float _smoothedInputMagnitude;
     private float _smoothedMoveVelocity;
     private float _currentAngle;
+    private Vector3 _currentVelocity;
+    private Rigidbody _rigidbody;
 
-    void Update () {
+    private void Start()
+    {
+        // Rigidbody is used to update player's transform
+        // Rigidbody should be updated in FixedUpdate
+        _rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void FixedUpdate()
+    {
+        _rigidbody.MoveRotation(Quaternion.Euler(Vector3.up * _currentAngle));
+        _rigidbody.MovePosition(_rigidbody.position + _currentVelocity * Time.deltaTime);
+    }
+
+    private void Update()
+    {
         Vector3 inputDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
         // inputDirection.magnitude will be 1 if any of the arrow keys held down, 0 otherwise
@@ -20,9 +36,7 @@ public class Player : MonoBehaviour
 
         // LerpAngle handles correct interpolation around 360 degrees
         _currentAngle = Mathf.LerpAngle(_currentAngle, targetAngle, TurnSpeed * Time.deltaTime * inputMagnitude);
-        transform.eulerAngles = _currentAngle * Vector3.up;
-
         _smoothedInputMagnitude = Mathf.SmoothDamp(_smoothedInputMagnitude, inputMagnitude, ref _smoothedMoveVelocity, SmoothedMoveTime);
-        transform.Translate(inputDirection * MoveSpeed * _smoothedInputMagnitude * Time.deltaTime, Space.World);
+        _currentVelocity = inputDirection * MoveSpeed * _smoothedInputMagnitude;
     }
 }
