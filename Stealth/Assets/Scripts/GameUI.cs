@@ -24,6 +24,7 @@ public class GameUI : MonoBehaviour
     {
         _gameIsOver = true;
         gameOverUI.SetActive(true);
+        Guard.OnPlayerSpotted -= OnPlayerSpotted;
     }
 
     void Update()
