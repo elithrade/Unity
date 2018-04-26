@@ -1,15 +1,17 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameUI : MonoBehaviour
 {
     public GameObject GameLoseUI;
     public GameObject GameWinUI;
+
     private bool _gameIsOver;
 
     private void Start()
     {
+        // Note this script is linked to canvas
+        // If canvas is set to inactive the script won't be called
         Guard.OnPlayerSpotted += OnPlayerSpotted;
     }
 
