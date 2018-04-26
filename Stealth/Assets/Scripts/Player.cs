@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -12,12 +13,24 @@ public class Player : MonoBehaviour
     private float _currentAngle;
     private Vector3 _currentVelocity;
     private Rigidbody _rigidbody;
+    private bool _disabled;
 
     private void Start()
     {
         // Rigidbody is used to update player's transform
         // Rigidbody should be updated in FixedUpdate
         _rigidbody = GetComponent<Rigidbody>();
+        Guard.OnPlayerSpotted += Disable;
+    }
+
+    private void OnDestroy()
+    {
+        Guard.OnPlayerSpotted -= Disable;
+    }
+
+    private void Disable()
+    {
+        _disabled = true;
     }
 
     private void FixedUpdate()
@@ -28,7 +41,9 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Vector3 inputDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+        Vector3 inputDirection = Vector3.zero;
+        if (!_disabled)
+            inputDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
 
         // inputDirection.magnitude will be 1 if any of the arrow keys held down, 0 otherwise
         float inputMagnitude = inputDirection.magnitude;

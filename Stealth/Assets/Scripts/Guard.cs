@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class Guard : MonoBehaviour
 {
+    public static event Action OnPlayerSpotted;
+
     public Transform Path;
     public float Speed = 7;
     public float WaitTime = .2f;
@@ -11,14 +14,16 @@ public class Guard : MonoBehaviour
     public Light SpotLight;
     public float ViewDistance;
     public LayerMask ViewMask;
+    public float TimeToSpotPlayer = .5f;
 
     private Transform _player;
-    private Color _spotLightColor;
+    private Color _originalSpotLightColor;
+    private float _playerVisibleTimer;
 
     private void Start()
     {
         _player = GameObject.FindGameObjectWithTag("Player").transform;
-        _spotLightColor = SpotLight.color;
+        _originalSpotLightColor = SpotLight.color;
 
         Vector3[] waypoints = new Vector3[Path.childCount];
         for (int i = 0; i < Path.childCount; i++)
@@ -102,9 +107,18 @@ public class Guard : MonoBehaviour
     private void Update()
     {
         if (CanSeePlayer())
-            SpotLight.color = Color.red;
+            _playerVisibleTimer += Time.deltaTime;
         else
-            SpotLight.color = _spotLightColor;
+            _playerVisibleTimer -= Time.deltaTime;
+
+        _playerVisibleTimer = Mathf.Clamp(_playerVisibleTimer, 0, TimeToSpotPlayer);
+        SpotLight.color = Color.Lerp(_originalSpotLightColor, Color.red, _playerVisibleTimer / TimeToSpotPlayer);
+
+        if (_playerVisibleTimer == TimeToSpotPlayer)
+        {
+            if (OnPlayerSpotted != null)
+                OnPlayerSpotted();
+        }
     }
 
     private void OnDrawGizmos()
