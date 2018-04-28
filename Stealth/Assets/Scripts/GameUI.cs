@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameUI : MonoBehaviour
@@ -13,6 +14,12 @@ public class GameUI : MonoBehaviour
         // Note this script is linked to canvas
         // If canvas is set to inactive the script won't be called
         Guard.OnPlayerSpotted += OnPlayerSpotted;
+        Player.OnGameFinished += OnGameFinshed;
+    }
+
+    private void OnGameFinshed()
+    {
+        OnGameOver(GameWinUI);
     }
 
     private void OnPlayerSpotted()
@@ -23,11 +30,13 @@ public class GameUI : MonoBehaviour
     private void OnGameOver(GameObject gameOverUI)
     {
         _gameIsOver = true;
+
         gameOverUI.SetActive(true);
         Guard.OnPlayerSpotted -= OnPlayerSpotted;
+        Player.OnGameFinished -= OnGameFinshed;
     }
 
-    void Update()
+    private void Update()
     {
         if (_gameIsOver)
         {

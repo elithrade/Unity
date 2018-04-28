@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public static event Action OnGameFinished;
     public float MoveSpeed = 7;
     // The time it takes for the smoothed move magnitude to catch up
     public float SmoothedMoveTime = .1f;
@@ -53,5 +54,15 @@ public class Player : MonoBehaviour
         _currentAngle = Mathf.LerpAngle(_currentAngle, targetAngle, TurnSpeed * Time.deltaTime * inputMagnitude);
         _smoothedInputMagnitude = Mathf.SmoothDamp(_smoothedInputMagnitude, inputMagnitude, ref _smoothedMoveVelocity, SmoothedMoveTime);
         _currentVelocity = inputDirection * MoveSpeed * _smoothedInputMagnitude;
+    }
+
+    private void OnTriggerEnter(Collider collider)
+    {
+        if (collider.gameObject.tag == "Finish")
+        {
+            Disable();
+            if (OnGameFinished != null)
+                OnGameFinished.Invoke();
+        }
     }
 }
