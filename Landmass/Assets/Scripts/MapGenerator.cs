@@ -37,5 +37,7 @@ public class MapGenerator : MonoBehaviour
             Octave = 1;
         if (Lacunarity < 1)
             Lacunarity = 1;
+        if (Scale < 0.001f)
+            Scale = 0.001f;
     }
 }

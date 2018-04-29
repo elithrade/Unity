@@ -5,12 +5,6 @@ public static class Noise
     public static float[,] GenerateNoiseMap(int width, int height, float scale, int seed,
                                             int octave, float persistence, float lacunarity, Vector2 offset)
     {
-        if (width < 0 || height < 0)
-            return null;
-
-        if (scale <= 0)
-            scale = 0.001f;
-
         // Seed allows us to generate different unique maps
         // The octave offsets are used to sample points from different locations
         System.Random random = new System.Random(seed);
