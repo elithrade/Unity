@@ -143,7 +143,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 100
   Height: 100
-  Scale: 6.31
+  Scale: 100
+  Octave: 8
+  Persistence: 0.859
+  Lacunarity: 1.87
+  Seed: 23
+  Offset: {x: 0, y: 0}
   AutoUpdate: 1
 --- !u!4 &885721913
 Transform:
