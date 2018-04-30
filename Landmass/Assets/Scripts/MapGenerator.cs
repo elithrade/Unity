@@ -12,6 +12,8 @@ public class MapGenerator : MonoBehaviour
     public int Seed;
     public Vector2 Offset;
     public bool AutoUpdate;
+    public DrawMode DrawMode;
+    public Region[] Regions;
 
     public void GenerateMap()
     {
@@ -24,7 +26,28 @@ public class MapGenerator : MonoBehaviour
         if (noiseMap == null)
             return;
 
-        display.Draw(noiseMap);
+        Color[] colorMap = new Color[Width * Height];
+        for (int y = 0; y < noiseMap.GetLength(1); y++)
+        {
+            for (int x = 0; x < noiseMap.GetLength(0); x++)
+            {
+                float currentHeight = noiseMap[x, y];
+                for (int i = 0; i < Regions.Length; i++)
+                {
+                    Region region = Regions[i];
+                    if (currentHeight <= region.Height)
+                    {
+                        colorMap[y * Width + x] = region.Color;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (DrawMode == DrawMode.Noise)
+            display.Draw(TextureGenerator.TextureFromHeightMap(noiseMap));
+        else if (DrawMode == DrawMode.Color)
+            display.Draw(TextureGenerator.TextureFromColorMap(colorMap, Width, Height));
     }
 
     public void OnValidate()

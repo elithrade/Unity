@@ -143,13 +143,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 100
   Height: 100
-  Scale: 100
-  Octave: 8
-  Persistence: 0.859
-  Lacunarity: 1.87
-  Seed: 23
+  Scale: 25
+  Octave: 5
+  Persistence: 0.5
+  Lacunarity: 2
+  Seed: 0
   Offset: {x: 0, y: 0}
   AutoUpdate: 1
+  DrawMode: 1
+  Regions:
+  - Name: Water
+    Height: 0.4
+    Color: {r: 0.27189663, g: 0.6196775, b: 0.78676474, a: 0}
+  - Name: Land
+    Height: 1
+    Color: {r: 0.59409684, g: 0.89705884, b: 0.303417, a: 0}
 --- !u!4 &885721913
 Transform:
   m_ObjectHideFlags: 0
