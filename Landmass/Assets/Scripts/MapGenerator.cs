@@ -27,9 +27,9 @@ public class MapGenerator : MonoBehaviour
             return;
 
         Color[] colorMap = new Color[Width * Height];
-        for (int y = 0; y < noiseMap.GetLength(1); y++)
+        for (int y = 0; y < Height; y++)
         {
-            for (int x = 0; x < noiseMap.GetLength(0); x++)
+            for (int x = 0; x < Width; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 for (int i = 0; i < Regions.Length; i++)
