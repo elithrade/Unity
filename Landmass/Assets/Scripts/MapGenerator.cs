@@ -45,9 +45,17 @@ public class MapGenerator : MonoBehaviour
         }
 
         if (DrawMode == DrawMode.Noise)
-            display.Draw(TextureGenerator.TextureFromHeightMap(noiseMap));
-        else if (DrawMode == DrawMode.Color)
-            display.Draw(TextureGenerator.TextureFromColorMap(colorMap, Width, Height));
+        {
+            display.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap));
+        }
+        else if (DrawMode == DrawMode.Color || DrawMode == DrawMode.Mesh)
+        {
+            Texture2D texture = TextureGenerator.TextureFromColorMap(colorMap, Width, Height);
+            if (DrawMode == DrawMode.Color)
+                display.DrawTexture(texture);
+            else
+                display.DrawMesh(MeshGenerator.Generate(noiseMap), texture);
+        }
     }
 
     public void OnValidate()
