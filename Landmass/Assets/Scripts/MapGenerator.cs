@@ -2,8 +2,6 @@
 
 public class MapGenerator : MonoBehaviour
 {
-    public int Width;
-    public int Height;
     public float Scale;
     public int Octave;
     [Range(0, 1)]
@@ -16,6 +14,10 @@ public class MapGenerator : MonoBehaviour
     public Region[] Regions;
     public float HeightMultiplier;
     public AnimationCurve HeightCurve;
+    [Range(0, 6)]
+    public int LevelOfDetail;
+
+    private int _meshChunkSize = 255;
 
     public void GenerateMap()
     {
@@ -23,15 +25,15 @@ public class MapGenerator : MonoBehaviour
         if (display == null)
             return;
 
-        float[,] noiseMap = Noise.GenerateNoiseMap(Width, Height, Scale, Seed,
+        float[,] noiseMap = Noise.GenerateNoiseMap(_meshChunkSize, _meshChunkSize, Scale, Seed,
                                                    Octave, Persistence, Lacunarity, Offset);
         if (noiseMap == null)
             return;
 
-        Color[] colorMap = new Color[Width * Height];
-        for (int y = 0; y < Height; y++)
+        Color[] colorMap = new Color[_meshChunkSize * _meshChunkSize];
+        for (int y = 0; y < _meshChunkSize; y++)
         {
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < _meshChunkSize; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 for (int i = 0; i < Regions.Length; i++)
@@ -39,7 +41,7 @@ public class MapGenerator : MonoBehaviour
                     Region region = Regions[i];
                     if (currentHeight <= region.Height)
                     {
-                        colorMap[y * Width + x] = region.Color;
+                        colorMap[y * _meshChunkSize + x] = region.Color;
                         break;
                     }
                 }
@@ -52,20 +54,16 @@ public class MapGenerator : MonoBehaviour
         }
         else if (DrawMode == DrawMode.Color || DrawMode == DrawMode.Mesh)
         {
-            Texture2D texture = TextureGenerator.TextureFromColorMap(colorMap, Width, Height);
+            Texture2D texture = TextureGenerator.TextureFromColorMap(colorMap, _meshChunkSize, _meshChunkSize);
             if (DrawMode == DrawMode.Color)
                 display.DrawTexture(texture);
             else
-                display.DrawMesh(MeshGenerator.Generate(noiseMap, HeightMultiplier, HeightCurve), texture);
+                display.DrawMesh(MeshGenerator.Generate(noiseMap, HeightMultiplier, HeightCurve, LevelOfDetail), texture);
         }
     }
 
     public void OnValidate()
     {
-        if (Width < 1)
-            Width = 1;
-        if (Height < 1)
-            Height = 1;
         if (Octave < 1)
             Octave = 1;
         if (Lacunarity < 1)
