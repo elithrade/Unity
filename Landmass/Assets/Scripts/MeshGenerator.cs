@@ -2,7 +2,7 @@
 
 public static class MeshGenerator
 {
-    public static MeshData Generate(float[,] heightMap)
+    public static MeshData Generate(float[,] heightMap, float heightMultiplier)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -17,10 +17,10 @@ public static class MeshGenerator
         {
             for (int x = 0; x < width; x++)
             {
-                Vector3 vertex = new Vector3(topLeftX + x, heightMap[x,y], topLeftZ - y);
+                Vector3 vertex = new Vector3(topLeftX + x, heightMap[x,y] * heightMultiplier, topLeftZ - y);
                 meshData.Vertices[vertexIndex] = vertex;
 
-                Vector2 uv = new Vector2(1 - x / (float) width, y / (float) height);
+                Vector2 uv = new Vector2(x / (float) width, y / (float) height);
                 meshData.Uvs[vertexIndex] = uv;
 
                 // The last row and column cannot form any triangle
