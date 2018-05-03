@@ -20,10 +20,10 @@ public static class MeshGenerator
                 Vector3 vertex = new Vector3(topLeftX + x, heightMap[x,y], topLeftZ - y);
                 meshData.Vertices[vertexIndex] = vertex;
 
-                Vector2 uv = new Vector2(x / (float) width, y / (float) height);
+                Vector2 uv = new Vector2(1 - x / (float) width, y / (float) height);
                 meshData.Uvs[vertexIndex] = uv;
 
-                // The las row and column cannot form any triangle
+                // The last row and column cannot form any triangle
                 if (x < width - 1 && y < height - 1)
                 {
                     // Adding triangles clockwise
