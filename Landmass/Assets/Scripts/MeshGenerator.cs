@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class MeshGenerator
 {
-    public static MeshData Generate(float[,] heightMap, float heightMultiplier)
+    public static MeshData Generate(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -17,7 +18,8 @@ public static class MeshGenerator
         {
             for (int x = 0; x < width; x++)
             {
-                Vector3 vertex = new Vector3(topLeftX + x, heightMap[x,y] * heightMultiplier, topLeftZ - y);
+                float heightOnCurve = heightCurve.Evaluate(heightMap[x,y]);
+                Vector3 vertex = new Vector3(topLeftX + x, heightOnCurve * heightMultiplier, topLeftZ - y);
                 meshData.Vertices[vertexIndex] = vertex;
 
                 Vector2 uv = new Vector2(x / (float) width, y / (float) height);

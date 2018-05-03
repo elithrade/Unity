@@ -15,6 +15,7 @@ public class MapGenerator : MonoBehaviour
     public DrawMode DrawMode;
     public Region[] Regions;
     public float HeightMultiplier;
+    public AnimationCurve HeightCurve;
 
     public void GenerateMap()
     {
@@ -55,7 +56,7 @@ public class MapGenerator : MonoBehaviour
             if (DrawMode == DrawMode.Color)
                 display.DrawTexture(texture);
             else
-                display.DrawMesh(MeshGenerator.Generate(noiseMap, HeightMultiplier), texture);
+                display.DrawMesh(MeshGenerator.Generate(noiseMap, HeightMultiplier, HeightCurve), texture);
         }
     }
 
