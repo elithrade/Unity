@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -18,13 +21,31 @@ public class MapGenerator : MonoBehaviour
     public int LevelOfDetail;
 
     private int _meshChunkSize = 255;
+    private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
+
+    private void Start()
+    {
+        _pendingMapDataQueue = new Queue<MapThreadInfo<MapData>>();
+    }
+
+    private void Update()
+    {
+        lock (_pendingMapDataQueue)
+        {
+            while (_pendingMapDataQueue.Count > 0)
+            {
+                MapThreadInfo<MapData> info = _pendingMapDataQueue.Dequeue();
+                info.InvokeCallback();
+            }
+        }
+    }
 
     private MapData GenerateMapData()
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(_meshChunkSize, _meshChunkSize, Scale, Seed,
                                                    Octave, Persistence, Lacunarity, Offset);
         if (noiseMap == null)
-            return null;;
+            return null; ;
 
         Color[] colorMap = new Color[_meshChunkSize * _meshChunkSize];
         for (int y = 0; y < _meshChunkSize; y++)
@@ -45,6 +66,21 @@ public class MapGenerator : MonoBehaviour
         }
 
         return new MapData(noiseMap, colorMap);
+    }
+
+    public void RequestMapData(Action<MapData> onMapData)
+    {
+        Thread processMapDataThread = new Thread(_ => Enqueue(onMapData));
+        processMapDataThread.Start();
+    }
+
+    private void Enqueue(Action<MapData> onMapData)
+    {
+        lock (_pendingMapDataQueue)
+        {
+            MapData mapData = GenerateMapData();
+            _pendingMapDataQueue.Enqueue(new MapThreadInfo<MapData>(mapData, onMapData));
+        }
     }
 
     public void DrawMap()
