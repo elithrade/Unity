@@ -22,8 +22,8 @@ public class TerrainChunk
 
     public void UpdateChunk(Vector2 viewerPosition)
     {
-        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(viewerPosition));
-        bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
+        float viewerDistanceFromNearestEdge = _bounds.SqrDistance(viewerPosition);
+        bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance * EndlessTerrain.MaxViewDistance;
         SetVisible(visible);
     }
 
