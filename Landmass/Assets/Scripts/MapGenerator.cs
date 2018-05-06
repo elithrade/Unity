@@ -19,8 +19,8 @@ public class MapGenerator : MonoBehaviour
     public AnimationCurve HeightCurve;
     [Range(0, 6)]
     public int LevelOfDetail;
+    public static int MeshChunkSize = 241;
 
-    private int _meshChunkSize = 255;
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
 
     private void Start()
@@ -42,15 +42,15 @@ public class MapGenerator : MonoBehaviour
 
     private MapData GenerateMapData()
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(_meshChunkSize, _meshChunkSize, Scale, Seed,
+        float[,] noiseMap = Noise.GenerateNoiseMap(MeshChunkSize, MeshChunkSize, Scale, Seed,
                                                    Octave, Persistence, Lacunarity, Offset);
         if (noiseMap == null)
             return null; ;
 
-        Color[] colorMap = new Color[_meshChunkSize * _meshChunkSize];
-        for (int y = 0; y < _meshChunkSize; y++)
+        Color[] colorMap = new Color[MeshChunkSize * MeshChunkSize];
+        for (int y = 0; y < MeshChunkSize; y++)
         {
-            for (int x = 0; x < _meshChunkSize; x++)
+            for (int x = 0; x < MeshChunkSize; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 for (int i = 0; i < Regions.Length; i++)
@@ -58,7 +58,7 @@ public class MapGenerator : MonoBehaviour
                     Region region = Regions[i];
                     if (currentHeight <= region.Height)
                     {
-                        colorMap[y * _meshChunkSize + x] = region.Color;
+                        colorMap[y * MeshChunkSize + x] = region.Color;
                         break;
                     }
                 }
@@ -96,7 +96,7 @@ public class MapGenerator : MonoBehaviour
         }
         else if (DrawMode == DrawMode.Color || DrawMode == DrawMode.Mesh)
         {
-            Texture2D texture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, _meshChunkSize, _meshChunkSize);
+            Texture2D texture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, MeshChunkSize, MeshChunkSize);
             if (DrawMode == DrawMode.Color)
                 display.DrawTexture(texture);
             else
