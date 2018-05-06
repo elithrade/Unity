@@ -22,21 +22,28 @@ public class MapGenerator : MonoBehaviour
     public static int MeshChunkSize = 241;
 
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
+    private Queue<MapThreadInfo<MeshData>> _pendingMeshDataQueue;
 
     private void Start()
     {
         _pendingMapDataQueue = new Queue<MapThreadInfo<MapData>>();
+        _pendingMeshDataQueue = new Queue<MapThreadInfo<MeshData>>();
     }
 
     private void Update()
     {
-        lock (_pendingMapDataQueue)
+        Process<MapData>(_pendingMapDataQueue);
+        Process<MeshData>(_pendingMeshDataQueue);
+    }
+
+    private void Process<T>(Queue<MapThreadInfo<T>> queue)
+        where T : class
+    {
+        // Locking inside Update method impacts performance a lot
+        while (queue.Count > 0)
         {
-            while (_pendingMapDataQueue.Count > 0)
-            {
-                MapThreadInfo<MapData> info = _pendingMapDataQueue.Dequeue();
-                info.InvokeCallback();
-            }
+            MapThreadInfo<T> info = queue.Dequeue();
+            info.InvokeCallback();
         }
     }
 
@@ -70,17 +77,35 @@ public class MapGenerator : MonoBehaviour
 
     public void RequestMapData(Action<MapData> onMapData)
     {
-        Thread processMapDataThread = new Thread(_ => Enqueue(onMapData));
+        Thread processMapDataThread = new Thread(() =>
+        {
+            lock (_pendingMapDataQueue)
+            {
+                MapData mapData = GenerateMapData();
+                _pendingMapDataQueue.Enqueue(new MapThreadInfo<MapData>(mapData, onMapData));
+            }
+        });
+
         processMapDataThread.Start();
     }
 
-    private void Enqueue(Action<MapData> onMapData)
+    public void RequestMeshData(Action<MeshData> onMeshData, MapData mapData)
     {
-        lock (_pendingMapDataQueue)
+        Thread processMeshDataThread = new Thread(() =>
         {
-            MapData mapData = GenerateMapData();
-            _pendingMapDataQueue.Enqueue(new MapThreadInfo<MapData>(mapData, onMapData));
-        }
+            lock (_pendingMeshDataQueue)
+            {
+                MeshData meshData = MeshGenerator.Generate(
+                    mapData.HeightMap,
+                    HeightMultiplier,
+                    HeightCurve,
+                    LevelOfDetail);
+
+                _pendingMeshDataQueue.Enqueue(new MapThreadInfo<MeshData>(meshData, onMeshData));
+            }
+        });
+
+        processMeshDataThread.Start();
     }
 
     public void DrawMap()

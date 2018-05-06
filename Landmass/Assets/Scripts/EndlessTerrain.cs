@@ -7,14 +7,17 @@ public class EndlessTerrain : MonoBehaviour
     public const float MaxViewDistance = 450;
     public Transform Viewer;
     public static Vector2 ViewerPosition;
+    public Material Material;
 
     private int _chunkSize;
     private int _chunksVisibleInViewDistance;
+    private MapGenerator _mapGenerator;
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
     private List<TerrainChunk> _VisibleTerrainChunksSinceLastUpdate;
 
     private void Start()
     {
+        _mapGenerator = FindObjectOfType<MapGenerator>();
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
         _VisibleTerrainChunksSinceLastUpdate = new List<TerrainChunk>();
         _chunkSize = MapGenerator.MeshChunkSize - 1;
@@ -52,7 +55,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(transform, viewedChunkCoordinate, _chunkSize));
+                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, viewedChunkCoordinate, _chunkSize, Material));
                 }
             }
         }
