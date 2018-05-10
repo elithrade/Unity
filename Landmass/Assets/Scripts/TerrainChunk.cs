@@ -11,8 +11,12 @@ public class TerrainChunk
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
     private MapGenerator _mapGenerator;
+    private MapData _mapData;
+    private int _previousLodIndex = -1;
+    private readonly LODInfo[] _levelOfDetails;
+    private readonly LODMesh[] _levelOfDetailMeshes;
 
-    public TerrainChunk(MapGenerator mapGenerator, Vector2 coordinate, int size, Material material)
+    public TerrainChunk(MapGenerator mapGenerator, LODInfo[] levelOfDetails, Vector2 coordinate, int size, Material material)
     {
         _position = coordinate * size;
         _bounds = new Bounds(_position, Vector2.one * size);
@@ -28,23 +32,61 @@ public class TerrainChunk
         SetVisible(false);
 
         _mapGenerator = mapGenerator;
+        _levelOfDetails = levelOfDetails;
+
+        // Each chunk will contain mesh data with different level of detail
+        // depends on the view distance LODMesh will request mesh with
+        // different level of detail.
+        _levelOfDetailMeshes = new LODMesh[_levelOfDetails.Length];
+        for (int i = 0; i < _levelOfDetailMeshes.Length; i++)
+        {
+            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail);
+        }
+
         _mapGenerator.RequestMapData(OnMapDataReceived);
     }
 
     private void OnMapDataReceived(MapData mapData)
     {
-        _mapGenerator.RequestMeshData(OnMeshDataReceived, mapData);
-    }
-
-    private void OnMeshDataReceived(MeshData meshData)
-    {
-        _meshFilter.mesh = meshData.CreateMesh();
+        _mapData = mapData;
     }
 
     public void UpdateChunk(Vector2 viewerPosition)
     {
-        float viewerDistanceFromNearestEdge = _bounds.SqrDistance(viewerPosition);
-        bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance * EndlessTerrain.MaxViewDistance;
+        if (_mapData == null)
+            return;
+
+        // Although Mathf.Sqrt is more expensive but we need the
+        // viewerDistanceFromNearestEdge to compare against each lod mesh's maximum distance.
+        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(viewerPosition));
+        bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
+        if (visible)
+        {
+            int lodIndex = 0;
+            // Find the correct level of detail index and update the lod mesh
+            for (int i = 0; i < _levelOfDetails.Length - 1; i++)
+            {
+                if (viewerDistanceFromNearestEdge > _levelOfDetails[i].MaximumViewDistanceForLevelOfDetail)
+                    lodIndex = i + 1;
+                else
+                    break;
+            }
+            if (lodIndex != _previousLodIndex)
+            {
+                // If the lod index has changed
+                LODMesh lodMesh = _levelOfDetailMeshes[lodIndex];
+                if (lodMesh.HasReceivedMesh)
+                {
+                    _meshFilter.mesh = lodMesh.Mesh;
+                    _previousLodIndex = lodIndex;
+                }
+                else if (!lodMesh.HasRequestedMesh)
+                {
+                    lodMesh.RequestMesh(_mapData);
+                }
+            }
+        }
+
         SetVisible(visible);
     }
 

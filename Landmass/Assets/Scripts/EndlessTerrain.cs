@@ -4,16 +4,17 @@ using UnityEngine;
 
 public class EndlessTerrain : MonoBehaviour
 {
-    public const float MaxViewDistance = 450;
     public Transform Viewer;
     public static Vector2 ViewerPosition;
     public Material Material;
+    public LODInfo[] LevelOfDetails;
 
     private int _chunkSize;
     private int _chunksVisibleInViewDistance;
     private MapGenerator _mapGenerator;
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
     private List<TerrainChunk> _VisibleTerrainChunksSinceLastUpdate;
+    internal static float MaxViewDistance;
 
     private void Start()
     {
@@ -21,6 +22,8 @@ public class EndlessTerrain : MonoBehaviour
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
         _VisibleTerrainChunksSinceLastUpdate = new List<TerrainChunk>();
         _chunkSize = MapGenerator.MeshChunkSize - 1;
+
+        MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].MaximumViewDistanceForLevelOfDetail;
         _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _chunkSize);
     }
 
@@ -32,7 +35,7 @@ public class EndlessTerrain : MonoBehaviour
 
     private void UpdateVisibleChunks(Vector2 viewerPosition)
     {
-        HideVisibleTerrainChunksSinceLastUpdate();
+        ResetVisibleChunks();
 
         int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
         int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
@@ -51,13 +54,13 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, viewedChunkCoordinate, _chunkSize, Material));
+                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, LevelOfDetails, viewedChunkCoordinate, _chunkSize, Material));
                 }
             }
         }
     }
 
-    private void HideVisibleTerrainChunksSinceLastUpdate()
+    private void ResetVisibleChunks()
     {
         for (int i = 0; i < _VisibleTerrainChunksSinceLastUpdate.Count; i++)
         {

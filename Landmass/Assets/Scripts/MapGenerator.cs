@@ -18,7 +18,7 @@ public class MapGenerator : MonoBehaviour
     public float HeightMultiplier;
     public AnimationCurve HeightCurve;
     [Range(0, 6)]
-    public int LevelOfDetail;
+    public int PreviewLOD;
     public static int MeshChunkSize = 241;
 
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
@@ -89,7 +89,7 @@ public class MapGenerator : MonoBehaviour
         processMapDataThread.Start();
     }
 
-    public void RequestMeshData(Action<MeshData> onMeshData, MapData mapData)
+    public void RequestMeshData(Action<MeshData> onMeshData, int lod, MapData mapData)
     {
         Thread processMeshDataThread = new Thread(() =>
         {
@@ -99,7 +99,7 @@ public class MapGenerator : MonoBehaviour
                     mapData.HeightMap,
                     HeightMultiplier,
                     HeightCurve,
-                    LevelOfDetail);
+                    lod);
 
                 _pendingMeshDataQueue.Enqueue(new MapThreadInfo<MeshData>(meshData, onMeshData));
             }
@@ -125,7 +125,7 @@ public class MapGenerator : MonoBehaviour
             if (DrawMode == DrawMode.Color)
                 display.DrawTexture(texture);
             else
-                display.DrawMesh(MeshGenerator.Generate(mapData.HeightMap, HeightMultiplier, HeightCurve, LevelOfDetail), texture);
+                display.DrawMesh(MeshGenerator.Generate(mapData.HeightMap, HeightMultiplier, HeightCurve, PreviewLOD), texture);
         }
     }
 
