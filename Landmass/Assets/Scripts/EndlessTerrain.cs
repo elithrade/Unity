@@ -32,11 +32,7 @@ public class EndlessTerrain : MonoBehaviour
 
     private void UpdateVisibleChunks(Vector2 viewerPosition)
     {
-        for (int i = 0; i < _VisibleTerrainChunksSinceLastUpdate.Count; i++)
-        {
-            _VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
-        }
-        _VisibleTerrainChunksSinceLastUpdate.Clear();
+        HideVisibleTerrainChunksSinceLastUpdate();
 
         int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
         int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
@@ -59,5 +55,14 @@ public class EndlessTerrain : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void HideVisibleTerrainChunksSinceLastUpdate()
+    {
+        for (int i = 0; i < _VisibleTerrainChunksSinceLastUpdate.Count; i++)
+        {
+            _VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
+        }
+        _VisibleTerrainChunksSinceLastUpdate.Clear();
     }
 }
