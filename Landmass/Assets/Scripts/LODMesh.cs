@@ -19,7 +19,6 @@ public class LODMesh
     public void RequestMesh(MapData mapData)
     {
         _mapGenerator.RequestMeshData(OnMeshDataReceived, _lod, mapData);
-        Debug.Log(_lod);
         HasRequestedMesh = true;
     }
 
