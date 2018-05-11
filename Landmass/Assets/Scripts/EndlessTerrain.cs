@@ -13,7 +13,7 @@ public class EndlessTerrain : MonoBehaviour
     private int _chunksVisibleInViewDistance;
     private MapGenerator _mapGenerator;
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
-    private List<TerrainChunk> _VisibleTerrainChunksSinceLastUpdate;
+    public static List<TerrainChunk> VisibleTerrainChunksSinceLastUpdate = new List<TerrainChunk>();
     internal static float MaxViewDistance;
     private const float _viewerMoveThreshold = 25f;
     private Vector2 _oldViewerPosition;
@@ -22,7 +22,6 @@ public class EndlessTerrain : MonoBehaviour
     {
         _mapGenerator = FindObjectOfType<MapGenerator>();
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
-        _VisibleTerrainChunksSinceLastUpdate = new List<TerrainChunk>();
         _chunkSize = MapGenerator.MeshChunkSize - 1;
 
         MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].MaximumViewDistanceForLevelOfDetail;
@@ -44,7 +43,7 @@ public class EndlessTerrain : MonoBehaviour
 
     private void UpdateVisibleChunks(Vector2 viewerPosition)
     {
-        ResetVisibleChunks();
+        RemoveVisibleTerrainChunksSinceLastUpdate();
 
         int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
         int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
@@ -58,8 +57,6 @@ public class EndlessTerrain : MonoBehaviour
                 {
                     TerrainChunk viewedChunk = _terrainChunks[viewedChunkCoordinate];
                     viewedChunk.UpdateTerrainChunk();
-                    if (viewedChunk.IsVisible())
-                        _VisibleTerrainChunksSinceLastUpdate.Add(viewedChunk);
                 }
                 else
                 {
@@ -69,12 +66,12 @@ public class EndlessTerrain : MonoBehaviour
         }
     }
 
-    private void ResetVisibleChunks()
+    private void RemoveVisibleTerrainChunksSinceLastUpdate()
     {
-        for (int i = 0; i < _VisibleTerrainChunksSinceLastUpdate.Count; i++)
+        for (int i = 0; i < VisibleTerrainChunksSinceLastUpdate.Count; i++)
         {
-            _VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
+            VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
         }
-        _VisibleTerrainChunksSinceLastUpdate.Clear();
+        VisibleTerrainChunksSinceLastUpdate.Clear();
     }
 }

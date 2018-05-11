@@ -91,6 +91,9 @@ public class TerrainChunk
                     lodMesh.RequestMesh(_mapData);
                 }
             }
+
+            // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
+            EndlessTerrain.VisibleTerrainChunksSinceLastUpdate.Add(this);
         }
 
         SetVisible(visible);
