@@ -47,10 +47,10 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private MapData GenerateMapData()
+    private MapData GenerateMapData(Vector2 centre)
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(MeshChunkSize, MeshChunkSize, Scale, Seed,
-                                                   Octave, Persistence, Lacunarity, Offset);
+                                                   Octave, Persistence, Lacunarity, centre + Offset);
         if (noiseMap == null)
             return null; ;
 
@@ -75,13 +75,13 @@ public class MapGenerator : MonoBehaviour
         return new MapData(noiseMap, colorMap);
     }
 
-    public void RequestMapData(Action<MapData> onMapData)
+    public void RequestMapData(Action<MapData> onMapData, Vector2 centre)
     {
         Thread processMapDataThread = new Thread(() =>
         {
             lock (_pendingMapDataQueue)
             {
-                MapData mapData = GenerateMapData();
+                MapData mapData = GenerateMapData(centre);
                 _pendingMapDataQueue.Enqueue(new MapThreadInfo<MapData>(mapData, onMapData));
             }
         });
@@ -114,7 +114,7 @@ public class MapGenerator : MonoBehaviour
         if (display == null)
             return;
 
-        MapData mapData = GenerateMapData();
+        MapData mapData = GenerateMapData(Vector2.zero);
         if (DrawMode == DrawMode.Noise)
         {
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(mapData.HeightMap));

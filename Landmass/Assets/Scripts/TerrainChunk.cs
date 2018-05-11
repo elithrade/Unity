@@ -44,7 +44,7 @@ public class TerrainChunk
             _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail, UpdateTerrainChunk);
         }
 
-        _mapGenerator.RequestMapData(OnMapDataReceived);
+        _mapGenerator.RequestMapData(OnMapDataReceived, _position);
     }
 
     private void OnMapDataReceived(MapData mapData)
