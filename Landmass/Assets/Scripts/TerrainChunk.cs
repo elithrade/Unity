@@ -50,6 +50,9 @@ public class TerrainChunk
     private void OnMapDataReceived(MapData mapData)
     {
         _mapData = mapData;
+        Texture2D texture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, MapGenerator.MeshChunkSize, MapGenerator.MeshChunkSize);
+        _meshRenderer.material.mainTexture = texture;
+
         // Update when we received map data
         UpdateTerrainChunk();
     }
