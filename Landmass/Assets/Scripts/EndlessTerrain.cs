@@ -15,6 +15,8 @@ public class EndlessTerrain : MonoBehaviour
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
     private List<TerrainChunk> _VisibleTerrainChunksSinceLastUpdate;
     internal static float MaxViewDistance;
+    private const float _viewerMoveThreshold = 25f;
+    private Vector2 _oldViewerPosition;
 
     private void Start()
     {
@@ -25,12 +27,19 @@ public class EndlessTerrain : MonoBehaviour
 
         MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].MaximumViewDistanceForLevelOfDetail;
         _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _chunkSize);
+
+        UpdateVisibleChunks(ViewerPosition);
     }
 
     private void Update()
     {
         ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z);
-        UpdateVisibleChunks(ViewerPosition);
+        if ((_oldViewerPosition - ViewerPosition).magnitude > _viewerMoveThreshold)
+        {
+            // Prevent calling UpdateVisibleChunks every frame
+            UpdateVisibleChunks(ViewerPosition);
+            _oldViewerPosition = ViewerPosition;
+        }
     }
 
     private void UpdateVisibleChunks(Vector2 viewerPosition)
@@ -48,7 +57,7 @@ public class EndlessTerrain : MonoBehaviour
                 if (_terrainChunks.ContainsKey(viewedChunkCoordinate))
                 {
                     TerrainChunk viewedChunk = _terrainChunks[viewedChunkCoordinate];
-                    viewedChunk.UpdateChunk(viewerPosition);
+                    viewedChunk.UpdateTerrainChunk();
                     if (viewedChunk.IsVisible())
                         _VisibleTerrainChunksSinceLastUpdate.Add(viewedChunk);
                 }

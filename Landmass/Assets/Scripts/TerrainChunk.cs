@@ -40,7 +40,8 @@ public class TerrainChunk
         _levelOfDetailMeshes = new LODMesh[_levelOfDetails.Length];
         for (int i = 0; i < _levelOfDetailMeshes.Length; i++)
         {
-            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail);
+            // Pass in callback update when we received mesh data
+            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail, UpdateTerrainChunk);
         }
 
         _mapGenerator.RequestMapData(OnMapDataReceived);
@@ -49,16 +50,18 @@ public class TerrainChunk
     private void OnMapDataReceived(MapData mapData)
     {
         _mapData = mapData;
+        // Update when we received map data
+        UpdateTerrainChunk();
     }
 
-    public void UpdateChunk(Vector2 viewerPosition)
+    public void UpdateTerrainChunk()
     {
         if (_mapData == null)
             return;
 
         // Although Mathf.Sqrt is more expensive but we need the
         // viewerDistanceFromNearestEdge to compare against each lod mesh's maximum distance.
-        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(viewerPosition));
+        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(EndlessTerrain.ViewerPosition));
         bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
         if (visible)
         {

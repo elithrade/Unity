@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 // Class responsible for fetching mesh data from MapGenerator.
@@ -8,12 +9,14 @@ public class LODMesh
     public bool HasRequestedMesh;
     public bool HasReceivedMesh;
     private readonly MapGenerator _mapGenerator;
-    internal int _lod;
+    private int _lod;
+    private Action _updateTerrainChunk;
 
-    public LODMesh(MapGenerator mapGenerator, int lod)
+    public LODMesh(MapGenerator mapGenerator, int lod, Action updateTerrainChunk)
     {
         _mapGenerator = mapGenerator;
         _lod = lod;
+        _updateTerrainChunk = updateTerrainChunk;
     }
 
     public void RequestMesh(MapData mapData)
@@ -26,5 +29,7 @@ public class LODMesh
     {
         Mesh = meshData.CreateMesh();
         HasReceivedMesh = true;
+
+        _updateTerrainChunk();
     }
 }
