@@ -13,7 +13,7 @@ public static class Noise
         {
             // Offset allows us to scroll through the noise map
             float offsetX = random.Next(-100000, 100000) + offset.x;
-            float offsetY = random.Next(-100000, 100000) + offset.y;
+            float offsetY = random.Next(-100000, 100000) - offset.y;
             octaveOffsets[i] = new Vector2(offsetX, offsetY);
         }
 
@@ -38,8 +38,9 @@ public static class Noise
                 {
                     // Using same x, y will yield same perlin value
                     // The higher the frequency the further apart the sample points will be
-                    float sampleX = (x - halfWidth) / scale * frequency + octaveOffsets[i].x;
-                    float sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y;
+                    // Fix landmass changing shape as adjusting offset by ensuring octave offset also affected by scale and frequency
+                    float sampleX = (x - halfWidth + octaveOffsets[i].x) / scale * frequency;
+                    float sampleY = (y - halfHeight + octaveOffsets[i].y) / scale * frequency;
                     // Since perlin noise is between 0 and 1, we can generate negative values by * 2 - 1
                     float perlineValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                     // Increase the noise height by the perlin value of each octave
