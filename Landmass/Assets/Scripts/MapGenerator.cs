@@ -127,6 +127,10 @@ public class MapGenerator : MonoBehaviour
             else
                 display.DrawMesh(MeshGenerator.Generate(mapData.HeightMap, HeightMultiplier, HeightCurve, PreviewLOD), texture);
         }
+        else if (DrawMode == DrawMode.Falloff)
+        {
+            display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(MeshChunkSize)));
+        }
     }
 
     public void OnValidate()

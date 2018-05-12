@@ -2,5 +2,6 @@ public enum DrawMode
 {
     Noise,
     Color,
-    Mesh
+    Mesh,
+    Falloff
 }
