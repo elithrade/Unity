@@ -5,6 +5,8 @@ public class TerrainChunk
 {
     public GameObject _meshObject;
 
+    public static float Scale = 5f;
+
     private readonly Vector2 _position;
     private readonly int size;
     private Bounds _bounds;
@@ -26,8 +28,9 @@ public class TerrainChunk
         _meshRenderer.material = material;
         _meshFilter = _meshObject.AddComponent<MeshFilter>();
 
-        _meshObject.transform.position = new Vector3(_position.x, 0, _position.y);
+        _meshObject.transform.position = new Vector3(_position.x, 0, _position.y) * Scale;
         _meshObject.transform.parent = mapGenerator.transform;
+        _meshObject.transform.localScale = Vector3.one * Scale;
 
         SetVisible(false);
 

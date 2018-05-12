@@ -32,7 +32,7 @@ public class EndlessTerrain : MonoBehaviour
 
     private void Update()
     {
-        ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z);
+        ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z) / TerrainChunk.Scale;
         if ((_oldViewerPosition - ViewerPosition).magnitude > _viewerMoveThreshold)
         {
             // Prevent calling UpdateVisibleChunks every frame
