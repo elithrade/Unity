@@ -12,7 +12,14 @@ public static class FalloffGenerator
             {
                 float x = i / (float) size * 2 - 1;
                 float y = j / (float) size * 2 - 1;
-                map[i,j] = Mathf.Max(Mathf.Abs(x), Mathf.Abs(y));
+                float value = Mathf.Max(Mathf.Abs(x), Mathf.Abs(y));
+
+                float a = 3;
+                float b = 2.2f;
+
+                // Function to increase the falloff area x^a / (x^a + (b - b * x)^a)
+                float weightedValue = Mathf.Pow(value, a) / (Mathf.Pow(value, a) + Mathf.Pow((b - b * value), a));
+                map[i,j] = weightedValue;
             }
         }
 

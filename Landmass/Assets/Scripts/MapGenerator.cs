@@ -21,9 +21,11 @@ public class MapGenerator : MonoBehaviour
     [Range(0, 6)]
     public int PreviewLOD;
     public static int MeshChunkSize = 241;
+    public bool UseFalloff;
 
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
     private Queue<MapThreadInfo<MeshData>> _pendingMeshDataQueue;
+    private float[,] _falloffMap;
 
     private void Start()
     {
@@ -61,6 +63,12 @@ public class MapGenerator : MonoBehaviour
             for (int x = 0; x < MeshChunkSize; x++)
             {
                 float currentHeight = noiseMap[x, y];
+                if (UseFalloff)
+                {
+                    currentHeight = Mathf.Clamp01(currentHeight - _falloffMap[x, y]);
+                    noiseMap[x, y] = currentHeight;
+                }
+
                 for (int i = 0; i < Regions.Length; i++)
                 {
                     Region region = Regions[i];
@@ -141,5 +149,12 @@ public class MapGenerator : MonoBehaviour
             Lacunarity = 1;
         if (Scale < 0.001f)
             Scale = 0.001f;
+
+        _falloffMap = FalloffGenerator.GenerateFalloffMap(MeshChunkSize);
+    }
+
+    private void Awake()
+    {
+        _falloffMap = FalloffGenerator.GenerateFalloffMap(MeshChunkSize);
     }
 }
