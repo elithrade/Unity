@@ -14,6 +14,7 @@ public class MapGenerator : MonoBehaviour
     public Vector2 Offset;
     public bool AutoUpdate;
     public DrawMode DrawMode;
+    public Noise.NormalizeMode NormalizeMode;
     public Region[] Regions;
     public float HeightMultiplier;
     public AnimationCurve HeightCurve;
@@ -50,7 +51,7 @@ public class MapGenerator : MonoBehaviour
     private MapData GenerateMapData(Vector2 centre)
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(MeshChunkSize, MeshChunkSize, Scale, Seed,
-                                                   Octave, Persistence, Lacunarity, centre + Offset);
+                                                   Octave, Persistence, Lacunarity, centre + Offset, NormalizeMode);
         if (noiseMap == null)
             return null; ;
 
@@ -63,11 +64,10 @@ public class MapGenerator : MonoBehaviour
                 for (int i = 0; i < Regions.Length; i++)
                 {
                     Region region = Regions[i];
-                    if (currentHeight <= region.Height)
-                    {
+                    if (currentHeight >= region.Height)
                         colorMap[y * MeshChunkSize + x] = region.Color;
+                    else
                         break;
-                    }
                 }
             }
         }
