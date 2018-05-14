@@ -69,9 +69,8 @@ public class EndlessTerrain : MonoBehaviour
     private void RemoveVisibleTerrainChunksSinceLastUpdate()
     {
         for (int i = 0; i < VisibleTerrainChunksSinceLastUpdate.Count; i++)
-        {
             VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
-        }
+
         VisibleTerrainChunksSinceLastUpdate.Clear();
     }
 }

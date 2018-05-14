@@ -35,8 +35,51 @@ public class MeshData
         mesh.vertices = Vertices;
         mesh.triangles = _triangles;
         mesh.uv = Uvs;
-        mesh.RecalculateNormals();
+        mesh.normals = CalculateNormals();
 
         return mesh;
+    }
+
+    private Vector3[] CalculateNormals()
+    {
+        Vector3[] normals = new Vector3[Vertices.Length];
+        // Calculate normal for each triangle
+        int numberOfTriangles = _triangles.Length / 3;
+        for (int i = 0; i < numberOfTriangles; i++)
+        {
+            int normalTriangleIndex = i * 3;
+            int vertexIndexA = _triangles[normalTriangleIndex];
+            int vertexIndexB = _triangles[normalTriangleIndex + 1];
+            int vertexIndexC = _triangles[normalTriangleIndex + 2];
+
+            Vector3 triangleNormal = CalculateSurfaceNormalFromTriangles(vertexIndexA, vertexIndexB, vertexIndexC);
+
+            // In unity we need to provide normal on per vertex basis
+            // Each vertex normal is the average of the normals of triangles to which the vertex belongs
+            //
+            // We want to add the triangle normal to each of the vertices that are part of the triangle
+            normals[vertexIndexA] += triangleNormal;
+            normals[vertexIndexA].Normalize();
+
+            normals[vertexIndexB] += triangleNormal;
+            normals[vertexIndexB].Normalize();
+
+            normals[vertexIndexC] += triangleNormal;
+            normals[vertexIndexC].Normalize();
+        }
+
+        return normals;
+    }
+
+    private Vector3 CalculateSurfaceNormalFromTriangles(int indexA, int indexB, int indexC)
+    {
+        Vector3 pointA =  Vertices[indexA];
+        Vector3 pointB =  Vertices[indexB];
+        Vector3 pointC =  Vertices[indexC];
+
+        Vector3 sideAB = pointB - pointA;
+        Vector3 sideAC = pointC - pointA;
+
+        return Vector3.Cross(sideAB, sideAC).normalized;
     }
 }
