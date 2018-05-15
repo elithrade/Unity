@@ -20,7 +20,7 @@ public class MapGenerator : MonoBehaviour
     public AnimationCurve HeightCurve;
     [Range(0, 6)]
     public int PreviewLOD;
-    public static int MeshChunkSize = 241;
+    public static int MeshChunkSize = 239;
     public bool UseFalloff;
 
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
@@ -52,7 +52,7 @@ public class MapGenerator : MonoBehaviour
 
     private MapData GenerateMapData(Vector2 centre)
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(MeshChunkSize, MeshChunkSize, Scale, Seed,
+        float[,] noiseMap = Noise.GenerateNoiseMap(MeshChunkSize + 2, MeshChunkSize + 2, Scale, Seed,
                                                    Octave, Persistence, Lacunarity, centre + Offset, NormalizeMode);
         if (noiseMap == null)
             return null; ;
