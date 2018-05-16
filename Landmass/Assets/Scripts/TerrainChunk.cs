@@ -12,6 +12,7 @@ public class TerrainChunk
     private Bounds _bounds;
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
     private MapGenerator _mapGenerator;
     private MapData _mapData;
     private int _previousLodIndex = -1;
@@ -27,6 +28,7 @@ public class TerrainChunk
         _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
         _meshRenderer.material = material;
         _meshFilter = _meshObject.AddComponent<MeshFilter>();
+        _meshCollider = _meshObject.AddComponent<MeshCollider>();
 
         _meshObject.transform.position = new Vector3(_position.x, 0, _position.y) * Scale;
         _meshObject.transform.parent = mapGenerator.transform;
@@ -87,6 +89,8 @@ public class TerrainChunk
                 if (lodMesh.HasReceivedMesh)
                 {
                     _meshFilter.mesh = lodMesh.Mesh;
+                    _meshCollider.sharedMesh = lodMesh.Mesh;
+
                     _previousLodIndex = lodIndex;
                 }
                 else if (!lodMesh.HasRequestedMesh)
