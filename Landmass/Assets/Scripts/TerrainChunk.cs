@@ -5,7 +5,7 @@ public class TerrainChunk
 {
     public GameObject _meshObject;
 
-    public static float Scale = 5f;
+    public static float Scale = 2f;
 
     private readonly Vector2 _position;
     private readonly int size;
@@ -18,6 +18,7 @@ public class TerrainChunk
     private int _previousLodIndex = -1;
     private readonly LODInfo[] _levelOfDetails;
     private readonly LODMesh[] _levelOfDetailMeshes;
+    private LODMesh _colliderMesh;
 
     public TerrainChunk(MapGenerator mapGenerator, LODInfo[] levelOfDetails, Vector2 coordinate, int size, Material material)
     {
@@ -47,6 +48,8 @@ public class TerrainChunk
         {
             // Pass in callback update when we received mesh data
             _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail, UpdateTerrainChunk);
+            if (_levelOfDetails[i].UseForCollider)
+                _colliderMesh = _levelOfDetailMeshes[i];
         }
 
         _mapGenerator.RequestMapData(OnMapDataReceived, _position);
@@ -89,14 +92,21 @@ public class TerrainChunk
                 if (lodMesh.HasReceivedMesh)
                 {
                     _meshFilter.mesh = lodMesh.Mesh;
-                    _meshCollider.sharedMesh = lodMesh.Mesh;
-
                     _previousLodIndex = lodIndex;
                 }
                 else if (!lodMesh.HasRequestedMesh)
                 {
                     lodMesh.RequestMesh(_mapData);
                 }
+            }
+
+            // Only add collider if close enough
+            if (lodIndex == 0)
+            {
+                if (_colliderMesh.HasReceivedMesh)
+                    _meshCollider.sharedMesh = _colliderMesh.Mesh;
+                else if (!_colliderMesh.HasRequestedMesh)
+                    _colliderMesh.RequestMesh(_mapData);
             }
 
             // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
