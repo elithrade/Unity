@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MeshData
@@ -10,6 +11,7 @@ public class MeshData
     private int _triangleIndex;
     private int _borderTriangleIndex;
     private int _vertexIndex;
+    private Vector3[] _bakedNormals;
 
     public MeshData(int verticesPerLine)
     {
@@ -66,7 +68,7 @@ public class MeshData
         mesh.vertices = _vertices;
         mesh.triangles = _triangles;
         mesh.uv = _uvs;
-        mesh.normals = CalculateNormals();
+        mesh.normals = _bakedNormals;
 
         return mesh;
     }
@@ -118,6 +120,11 @@ public class MeshData
             normals[i].Normalize();
 
         return normals;
+    }
+
+    internal void BakeNormals()
+    {
+        _bakedNormals = CalculateNormals();
     }
 
     private Vector3 CalculateSurfaceNormalFromTriangles(int indexA, int indexB, int indexC)

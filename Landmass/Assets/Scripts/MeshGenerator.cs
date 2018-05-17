@@ -3,6 +3,7 @@ using UnityEngine;
 
 public static class MeshGenerator
 {
+    // Note that this method is called from a thread pool thread
     public static MeshData Generate(
         float[,] heightMap,
         float heightMultiplier,
@@ -88,6 +89,8 @@ public static class MeshGenerator
                 vertexIndex++;
             }
         }
+
+        meshData.BakeNormals();
 
         return meshData;
     }
