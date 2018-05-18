@@ -21,7 +21,7 @@ public class EndlessTerrain : MonoBehaviour
     {
         _mapGenerator = FindObjectOfType<MapGenerator>();
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
-        _chunkSize = MapGenerator.MeshChunkSize - 1;
+        _chunkSize = _mapGenerator.MeshChunkSize - 1;
 
         MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].MaximumViewDistanceForLevelOfDetail;
         _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _chunkSize);

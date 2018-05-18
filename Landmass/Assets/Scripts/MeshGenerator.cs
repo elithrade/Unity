@@ -7,7 +7,8 @@ public static class MeshGenerator
         float[,] heightMap,
         float heightMultiplier,
         AnimationCurve heightCurve,
-        int levelOfDetail)
+        int levelOfDetail,
+        bool useFlatShading)
     {
         int increment = levelOfDetail == 0 ? 1 : levelOfDetail * 2;
 
@@ -18,7 +19,7 @@ public static class MeshGenerator
         float topLeftX = (originalMeshSize - 1) / -2f;
         float topLeftZ = (originalMeshSize - 1) / 2f;
 
-        MeshData meshData = new MeshData(borderedSize);
+        MeshData meshData = new MeshData(borderedSize, useFlatShading);
 
         // To calculate the normals correctly between chunks
         // we need to take into account the bordered vertices
@@ -89,7 +90,7 @@ public static class MeshGenerator
             }
         }
 
-        meshData.BakeNormals();
+        meshData.ProcessMesh();
 
         return meshData;
     }

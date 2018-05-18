@@ -20,8 +20,8 @@ public class MapGenerator : MonoBehaviour
     public AnimationCurve HeightCurve;
     [Range(0, 6)]
     public int PreviewLOD;
-    public static int MeshChunkSize = 239;
     public bool UseFalloff;
+    public bool UseFlatShading;
 
     private Queue<MapThreadInfo<MapData>> _pendingMapDataQueue;
     private Queue<MapThreadInfo<MeshData>> _pendingMeshDataQueue;
@@ -107,7 +107,8 @@ public class MapGenerator : MonoBehaviour
                     mapData.HeightMap,
                     HeightMultiplier,
                     HeightCurve,
-                    lod);
+                    lod,
+                    UseFlatShading);
 
                 _pendingMeshDataQueue.Enqueue(new MapThreadInfo<MeshData>(meshData, onMeshData));
             }
@@ -133,7 +134,7 @@ public class MapGenerator : MonoBehaviour
             if (DrawMode == DrawMode.Color)
                 display.DrawTexture(texture);
             else
-                display.DrawMesh(MeshGenerator.Generate(mapData.HeightMap, HeightMultiplier, HeightCurve, PreviewLOD), texture);
+                display.DrawMesh(MeshGenerator.Generate(mapData.HeightMap, HeightMultiplier, HeightCurve, PreviewLOD, UseFlatShading), texture);
         }
         else if (DrawMode == DrawMode.Falloff)
         {
@@ -156,5 +157,16 @@ public class MapGenerator : MonoBehaviour
     private void Awake()
     {
         _falloffMap = FalloffGenerator.GenerateFalloffMap(MeshChunkSize);
+    }
+
+    public int MeshChunkSize
+    {
+        get
+        {
+            if (UseFlatShading)
+                return 95;
+            else
+                return 239;
+        }
     }
 }

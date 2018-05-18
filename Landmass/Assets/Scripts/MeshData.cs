@@ -2,20 +2,23 @@ using UnityEngine;
 
 public class MeshData
 {
-    private readonly Vector3[] _vertices;
+    private Vector3[] _vertices;
     private readonly Vector3[] _borderVertices;
     private Vector2[] _uvs;
     private readonly int[] _triangles;
     private readonly int[] _borderTriangles;
+    private readonly bool _useFlatShading;
     private int _triangleIndex;
     private int _borderTriangleIndex;
     private int _vertexIndex;
     private Vector3[] _bakedNormals;
 
-    public MeshData(int verticesPerLine)
+    public MeshData(int verticesPerLine, bool useFlatShading)
     {
         _vertices = new Vector3[verticesPerLine * verticesPerLine];
         _borderVertices = new Vector3[verticesPerLine * 4 + 4];
+
+        _useFlatShading = useFlatShading;
 
         // Uv map, one for each vertex
         // Foreach vertex where it is in relation to the rest of the map as a percentage for both the x and y axis
@@ -67,7 +70,11 @@ public class MeshData
         mesh.vertices = _vertices;
         mesh.triangles = _triangles;
         mesh.uv = _uvs;
-        mesh.normals = _bakedNormals;
+
+        if (_useFlatShading)
+            mesh.RecalculateNormals();
+        else
+            mesh.normals = _bakedNormals;
 
         return mesh;
     }
@@ -121,9 +128,37 @@ public class MeshData
         return normals;
     }
 
-    internal void BakeNormals()
+    private void BakeNormals()
     {
         _bakedNormals = CalculateNormals();
+    }
+
+    public void ProcessMesh()
+    {
+        if (_useFlatShading)
+            FlatShading();
+        else
+            BakeNormals();
+    }
+
+    private void FlatShading()
+    {
+        Vector3[] flatShadedVertices = new Vector3[_triangles.Length];
+        Vector2[] flatShadedUvs = new Vector2[_triangles.Length];
+        for (int i = 0; i < flatShadedVertices.Length; i++)
+        {
+            // Flat shaded vertices refers to the vertices indexed by triangle array
+            flatShadedVertices[i] = _vertices[_triangles[i]];
+            flatShadedUvs[i] = _uvs[_triangles[i]];
+            // New flat shaded index
+            _triangles[i] = i;
+        }
+
+        if (_useFlatShading)
+        {
+            _vertices = flatShadedVertices;
+            _uvs = flatShadedUvs;
+        }
     }
 
     private Vector3 CalculateSurfaceNormalFromTriangles(int indexA, int indexB, int indexC)
