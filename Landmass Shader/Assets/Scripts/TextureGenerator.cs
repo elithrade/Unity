@@ -1,0 +1,35 @@
+using UnityEngine;
+
+public static class TextureGenerator
+{
+    public static Texture2D TextureFromColorMap(int width, int height)
+    {
+        // The width and height are the dimension of 2D array
+        Texture2D texture = new Texture2D(width, height);
+        // Setting pixels using array is much more efficient than setting single pixel
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Point;
+        texture.Apply();
+
+        return texture;
+    }
+
+    public static Texture2D TextureFromHeightMap(float[,] heightMap)
+    {
+        int width = heightMap.GetLength(0);
+        int height = heightMap.GetLength(1);
+
+        Color[] colorMap = new Color[width * height];
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                // Converts 2D array to 1D then interpolate between black and white using the noise value
+                colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, heightMap[x, y]);
+            }
+        }
+
+        return TextureFromColorMap(width, height);
+    }
+}
