@@ -12,26 +12,29 @@
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
+		const static int maxColourCount = 8;
+
+		int baseColourCount;
+		float3 baseColours[maxColourCount];
+		float baseStartHeights[maxColourCount];
+
+		float minHeight;
+		float maxHeight;
+
 		struct Input {
-            float3 worldPosition;
+			float3 worldPos;
 		};
 
-        float minHeight;
-        float maxHeight;
+		float inverseLerp(float a, float b, float value) {
+			return saturate((value-a)/(b-a));
+		}
 
-        // Function has oto be defined before the surf call
-        float inverseLerp(float a, float b, float value)
-        {
-            // value must be within the range of min and max
-            // saturate will clamp the value between 0 and 1
-            return saturate((value - a) / (b - a));
-        }
-
-        // surf function is called for every pixel that mesh is visible
 		void surf (Input IN, inout SurfaceOutputStandard o) {
-			// Albedo comes from a texture tinted by color
-            float heightPercent = inverseLerp(minHeight, maxHeight, IN.worldPosition.y);
-			o.Albedo = heightPercent;
+			float heightPercent = inverseLerp(minHeight,maxHeight, IN.worldPos.y);
+			for (int i = 0; i < baseColourCount; i ++) {
+				float drawStrength = saturate(sign(heightPercent - baseStartHeights[i]));
+				o.Albedo = o.Albedo * (1-drawStrength) + baseColours[i] * drawStrength;
+			}
 		}
 		ENDCG
 	}

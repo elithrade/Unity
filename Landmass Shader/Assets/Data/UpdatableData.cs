@@ -9,12 +9,16 @@ public class UpdatableData : ScriptableObject
     protected virtual void OnValidate()
     {
         if (AutoUpdate)
-            NotifyValueChanged();
+            UnityEditor.EditorApplication.update += NotifyValueChanged;
     }
 
     public void NotifyValueChanged()
     {
         if (OnValueUpdated != null)
+        {
+            // Workaround for delaying shader updated after compile
+            UnityEditor.EditorApplication.update -= NotifyValueChanged;
             OnValueUpdated();
+        }
     }
 }
