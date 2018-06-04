@@ -8,6 +8,8 @@ public class TextureData : UpdatableData
     [Range(0,1)]
     // Each of the float determines the starting color in BaseColors array
     public float[] BaseStartHeights;
+    [Range(0,1)]
+    public float[] BaseBlends;
 
     float _savedMinHeight;
     float _savedMaxHeight;
@@ -17,6 +19,7 @@ public class TextureData : UpdatableData
         material.SetInt("baseColourCount", BaseColours.Length);
         material.SetColorArray("baseColours", BaseColours);
         material.SetFloatArray("baseStartHeights", BaseStartHeights);
+        material.SetFloatArray("baseBlends", BaseBlends);
 
         SetMinMaxHeight(material, _savedMinHeight, _savedMaxHeight);
     }
