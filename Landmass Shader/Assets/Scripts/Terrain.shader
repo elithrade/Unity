@@ -14,12 +14,14 @@
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
-		const static int maxColourCount = 8;
+		const static int maxLayerCount = 8;
 
-		int baseColourCount;
-		float3 baseColours[maxColourCount];
-		float baseStartHeights[maxColourCount];
-		float baseBlends[maxColourCount];
+		int layerCount;
+		float3 baseColours[maxLayerCount];
+		float baseStartHeights[maxLayerCount];
+		float baseBlends[maxLayerCount];
+		float baseColourStrength[maxLayerCount];
+		float baseTextureScale[maxLayerCount];
 
 		float minHeight;
 		float maxHeight;
@@ -38,7 +40,7 @@
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 			float heightPercent = inverseLerp(minHeight,maxHeight, IN.worldPos.y);
-			for (int i = 0; i < baseColourCount; i ++) {
+			for (int i = 0; i < layerCount; i ++) {
                 float halfBlend = baseBlends[i];
 				float drawStrength = inverseLerp(-halfBlend - 1e-4, halfBlend, heightPercent - baseStartHeights[i]);
 				o.Albedo = o.Albedo * (1-drawStrength) + baseColours[i] * drawStrength;
@@ -53,7 +55,7 @@
             float3 yProjection = tex2D(testTexture, scaledWorldPosition.xz) * blendNormal.y;
             float3 zProjection = tex2D(testTexture, scaledWorldPosition.xz) * blendNormal.z;
 
-            o.Albedo = xProjection + yProjection + zProjection;
+            // o.Albedo = xProjection + yProjection + zProjection;
 		}
 		ENDCG
 	}
