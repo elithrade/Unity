@@ -21,13 +21,15 @@
 		float baseStartHeights[maxLayerCount];
 		float baseBlends[maxLayerCount];
 		float baseColourStrength[maxLayerCount];
-		float baseTextureScale[maxLayerCount];
+		float baseTextureScales[maxLayerCount];
 
 		float minHeight;
 		float maxHeight;
 
         sampler2D testTexture;
         float testScale;
+
+        UNITY_DECLARE_TEX2DARRAY(baseTextures);
 
 		struct Input {
 			float3 worldPos;
@@ -38,24 +40,32 @@
 			return saturate((value-a)/(b-a));
 		}
 
+        float3 triplanar(float3 worldPos, float scale, float3 blendAxes, int textureIndex)
+        {
+            // xz means projecting onto xz plane, along the y axis
+            // Blend xz, xy, yz based on normal of each point
+            float3 scaledWorldPosition = worldPos / scale;
+            float3 xProjection = UNITY_SAMPLE_TEX2DARRAY(baseTextures, float3(scaledWorldPosition.y, scaledWorldPosition.z, textureIndex)) * blendAxes.x;
+            float3 yProjection = UNITY_SAMPLE_TEX2DARRAY(baseTextures, float3(scaledWorldPosition.x, scaledWorldPosition.z, textureIndex)) * blendAxes.y;
+            float3 zProjection = UNITY_SAMPLE_TEX2DARRAY(baseTextures, float3(scaledWorldPosition.x, scaledWorldPosition.y, textureIndex)) * blendAxes.z;
+
+            return xProjection + yProjection + zProjection;
+        }
+
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 			float heightPercent = inverseLerp(minHeight,maxHeight, IN.worldPos.y);
+            float3 blendAxes = abs(IN.worldNormal);
+            // Ensure rgb values not exceeding 1 to produce the correct brightness
+            blendAxes /= blendAxes.x + blendAxes.y + blendAxes.z;
+
 			for (int i = 0; i < layerCount; i ++) {
                 float halfBlend = baseBlends[i];
 				float drawStrength = inverseLerp(-halfBlend - 1e-4, halfBlend, heightPercent - baseStartHeights[i]);
-				o.Albedo = o.Albedo * (1-drawStrength) + baseColours[i] * drawStrength;
-			}
-            // xz means projecting onto xz plane, along the y axis
-            // Blend xz, xy, yz based on normal of each point
-            float3 scaledWorldPosition = IN.worldPos / testScale;
-            float3 blendNormal = abs(IN.worldNormal);
-            // Ensure rgb values not exceeding 1 to produce the correct brightness
-            blendNormal /= blendNormal.x + blendNormal.y + blendNormal.z;
-            float3 xProjection = tex2D(testTexture, scaledWorldPosition.yz) * blendNormal.x;
-            float3 yProjection = tex2D(testTexture, scaledWorldPosition.xz) * blendNormal.y;
-            float3 zProjection = tex2D(testTexture, scaledWorldPosition.xz) * blendNormal.z;
+                float3 baseColour = baseColours[i] * baseColourStrength[i];
+                float3 textureColour = triplanar(IN.worldPos, baseTextureScales[i], blendAxes, i) * (1 - baseColourStrength[i]);
 
-            // o.Albedo = xProjection + yProjection + zProjection;
+				o.Albedo = o.Albedo * (1-drawStrength) + (baseColour + textureColour) * drawStrength;
+			}
 		}
 		ENDCG
 	}

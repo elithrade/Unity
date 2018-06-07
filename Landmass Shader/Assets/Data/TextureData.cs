@@ -6,8 +6,11 @@ using UnityEngine;
 public class TextureData : UpdatableData
 {
     public Layer[] Layers;
-    float _savedMinHeight;
-    float _savedMaxHeight;
+    private float _savedMinHeight;
+    private float _savedMaxHeight;
+
+    const int _textureSize = 512;
+    const TextureFormat _textureFormat = TextureFormat.RGB565;
 
     internal void Apply(Material material)
     {
@@ -16,9 +19,22 @@ public class TextureData : UpdatableData
         material.SetFloatArray("baseStartHeights", Layers.Select(x => x.StartHeight).ToArray());
         material.SetFloatArray("baseBlends", Layers.Select(x => x.BlendStrength).ToArray());
         material.SetFloatArray("baseColourStrength", Layers.Select(x => x.TintStrength).ToArray());
-        material.SetFloatArray("baseTextureScale", Layers.Select(x => x.TextureScale).ToArray());
+        material.SetFloatArray("baseTextureScales", Layers.Select(x => x.TextureScale).ToArray());
+        Texture2DArray texturesArray = GenerateTextureArray(Layers.Select(x => x.Texture).ToArray());
+        material.SetTexture("baseTextures", texturesArray);
 
         SetMinMaxHeight(material, _savedMinHeight, _savedMaxHeight);
+    }
+
+    private Texture2DArray GenerateTextureArray(Texture2D[] textures)
+    {
+        Texture2DArray textureArray = new Texture2DArray(_textureSize, _textureSize, textures.Length, _textureFormat, true);
+        for (int i = 0; i < textures.Length; i++)
+            textureArray.SetPixels(textures[i].GetPixels(), i);
+
+        textureArray.Apply();
+
+        return textureArray;
     }
 
     public void SetMinMaxHeight(Material material, float minHeight, float maxHeight)
@@ -34,7 +50,7 @@ public class TextureData : UpdatableData
     [Serializable]
     public class Layer
     {
-        public Texture Texture;
+        public Texture2D Texture;
         public Color Tint;
         [Range(0, 1)]
         public float TintStrength;

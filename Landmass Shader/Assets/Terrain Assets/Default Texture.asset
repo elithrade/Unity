@@ -13,39 +13,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AutoUpdate: 1
   Layers:
-  - Texture: {fileID: 0}
-    Tint: {r: 0.009611944, g: 0.4324, b: 0.6792453, a: 0}
+  - Texture: {fileID: 2800000, guid: f83b383ae37b14244bb9c3aad7ce6b97, type: 3}
+    Tint: {r: 0.032840855, g: 0.42662534, b: 0.7735849, a: 0}
     TintStrength: 0
     StartHeight: 0
-    BlendStrength: 0.026
+    BlendStrength: 0
     TextureScale: 0
-  - Texture: {fileID: 0}
-    Tint: {r: 0.9528302, g: 0.8729927, b: 0.68765575, a: 0}
+  - Texture: {fileID: 2800000, guid: 8537d5d583cfe4ae88c97f288d3731b4, type: 3}
+    Tint: {r: 0.7075472, g: 0.63215643, b: 0.25698647, a: 0}
     TintStrength: 0
-    StartHeight: 0.24
-    BlendStrength: 0.096
+    StartHeight: 0.021
+    BlendStrength: 0.028
     TextureScale: 0
-  - Texture: {fileID: 0}
-    Tint: {r: 0.4111784, g: 0.5660378, b: 0.3337487, a: 0}
+  - Texture: {fileID: 2800000, guid: 875707a9db88c4db7a30f477398d6dbb, type: 3}
+    Tint: {r: 0.22164471, g: 0.3773585, b: 0.13705945, a: 0}
     TintStrength: 0
-    StartHeight: 0.335
-    BlendStrength: 0.083
+    StartHeight: 0.088
+    BlendStrength: 0.04
     TextureScale: 0
-  - Texture: {fileID: 0}
-    Tint: {r: 0.19210416, g: 0.3207547, b: 0.18609825, a: 0}
-    TintStrength: 0.083
+  - Texture: {fileID: 2800000, guid: 93f44b8b91c344ca8b05c94c027b8dd5, type: 3}
+    Tint: {r: 0.3490566, g: 0.29661578, b: 0.10702208, a: 0}
+    TintStrength: 0
+    StartHeight: 0.225
+    BlendStrength: 0.108
+    TextureScale: 0
+  - Texture: {fileID: 2800000, guid: 277ed7a7a4a5c408da3992cd5be01a2c, type: 3}
+    Tint: {r: 0.1981132, g: 0.16803943, b: 0.14297792, a: 0}
+    TintStrength: 0
     StartHeight: 0.431
-    BlendStrength: 0.174
+    BlendStrength: 0.313
     TextureScale: 0
-  - Texture: {fileID: 0}
-    Tint: {r: 0.1981132, g: 0.13900632, b: 0.09064614, a: 0}
-    TintStrength: 0
-    StartHeight: 0.44
-    BlendStrength: 0.214
-    TextureScale: 0
-  - Texture: {fileID: 0}
+  - Texture: {fileID: 2800000, guid: 2ce65ba92a100499e85c6004e8051f05, type: 3}
     Tint: {r: 1, g: 1, b: 1, a: 0}
     TintStrength: 0
     StartHeight: 0.849
-    BlendStrength: 0.083
+    BlendStrength: 0.284
     TextureScale: 0
