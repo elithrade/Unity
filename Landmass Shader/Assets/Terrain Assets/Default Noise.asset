@@ -13,8 +13,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AutoUpdate: 1
   NormalizeMode: 0
-  Scale: 40
-  Octave: 5
+  Scale: 50
+  Octave: 6
   Persistence: 0.5
   Lacunarity: 2
   Seed: 0
