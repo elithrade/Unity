@@ -76,8 +76,6 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        TextureData.SetMinMaxHeight(TextureMaterial, TerrainData.MinHeight, TerrainData.MaxHeight);
-
         return new MapData(noiseMap);
     }
 
@@ -117,6 +115,8 @@ public class MapGenerator : MonoBehaviour
 
     public void DrawMap()
     {
+        TextureData.SetMinMaxHeight(TextureMaterial, TerrainData.MinHeight, TerrainData.MaxHeight);
+
         MapDisplay display = FindObjectOfType<MapDisplay>();
         if (display == null)
             return;
@@ -134,6 +134,11 @@ public class MapGenerator : MonoBehaviour
         {
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(MeshChunkSize)));
         }
+    }
+
+    private void Awake()
+    {
+        TextureData.SetMinMaxHeight(TextureMaterial, TerrainData.MinHeight, TerrainData.MaxHeight);
     }
 
     private void OnValidate()
