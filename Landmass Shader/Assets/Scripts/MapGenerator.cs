@@ -138,6 +138,7 @@ public class MapGenerator : MonoBehaviour
 
     private void Awake()
     {
+        TextureData.Apply(TextureMaterial);
         TextureData.SetMinMaxHeight(TextureMaterial, TerrainData.MinHeight, TerrainData.MaxHeight);
     }
 

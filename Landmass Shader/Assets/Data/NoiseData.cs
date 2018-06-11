@@ -12,6 +12,8 @@ public class NoiseData : UpdatableData
     public int Seed;
     public Vector2 Offset;
 
+    #if UNITY_EDITOR
+
     protected override void OnValidate()
     {
         if (Octave < 1)
@@ -23,4 +25,6 @@ public class NoiseData : UpdatableData
 
         base.OnValidate();
     }
+
+    #endif
 }
