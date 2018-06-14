@@ -11,15 +11,17 @@ public class TerrainChunk
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
     private MapGenerator _mapGenerator;
+    private readonly int _colliderLODIndex;
     private MapData _mapData;
     private int _previousLodIndex = -1;
     private readonly LODInfo[] _levelOfDetails;
     private readonly LODMesh[] _levelOfDetailMeshes;
-    private LODMesh _colliderMesh;
+    private bool _hasSetCollider;
 
-    public TerrainChunk(MapGenerator mapGenerator, LODInfo[] levelOfDetails, Vector2 coordinate, int size, Material material)
+    public TerrainChunk(MapGenerator mapGenerator, int colliderLODIndex, LODInfo[] levelOfDetails, Vector2 coordinate, int size, Material material)
     {
         _mapGenerator = mapGenerator;
+        _colliderLODIndex = colliderLODIndex;
         _levelOfDetails = levelOfDetails;
 
         _position = coordinate * size;
@@ -43,10 +45,13 @@ public class TerrainChunk
         _levelOfDetailMeshes = new LODMesh[_levelOfDetails.Length];
         for (int i = 0; i < _levelOfDetailMeshes.Length; i++)
         {
-            // Pass in callback update when we received mesh data
-            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail, UpdateTerrainChunk);
-            if (_levelOfDetails[i].UseForCollider)
-                _colliderMesh = _levelOfDetailMeshes[i];
+            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail);
+            _levelOfDetailMeshes[i].MeshDataReceived += UpdateTerrainChunk;
+
+            // Make sure update the collision mesh when mesh data received
+            // TODO: Unsubscribe event on destroy TerrainChunk
+            if (i == _colliderLODIndex)
+                _levelOfDetailMeshes[i].MeshDataReceived += UpdateCollisionMesh;
         }
 
         _mapGenerator.RequestMapData(OnMapDataReceived, _position);
@@ -97,20 +102,41 @@ public class TerrainChunk
                 }
             }
 
-            // Only add collider if close enough
-            if (lodIndex == 0)
-            {
-                if (_colliderMesh.HasReceivedMesh)
-                    _meshCollider.sharedMesh = _colliderMesh.Mesh;
-                else if (!_colliderMesh.HasRequestedMesh)
-                    _colliderMesh.RequestMesh(_mapData);
-            }
-
             // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
             EndlessTerrain.VisibleTerrainChunksSinceLastUpdate.Add(this);
         }
 
         SetVisible(visible);
+    }
+
+    public void UpdateCollisionMesh()
+    {
+        if (_hasSetCollider)
+            return;
+
+        // UpdateCollisionMesh will be called much more frequently
+        // then UpdateTerrainChunk. The reason being we want to delay
+        // create collider and we need to constantly checking player
+        // position, otherwise it will be too late to create collider.
+        // This method will be called on each update when player is moved.
+        float squareDistanceFromPlayerToEdge = _bounds.SqrDistance(EndlessTerrain.ViewerPosition);
+        LODMesh lodMesh = _levelOfDetailMeshes[_colliderLODIndex];
+        if (squareDistanceFromPlayerToEdge < _levelOfDetails[_colliderLODIndex].SquaredMaximumViewDistanceForLevelOfDetail)
+        {
+            // Start requesting mesh when player is approaching to visible view distance
+            if (!lodMesh.HasRequestedMesh)
+                lodMesh.RequestMesh(_mapData);
+        }
+        if (squareDistanceFromPlayerToEdge < EndlessTerrain.ColliderGenerationDistanceThreshold * EndlessTerrain.ColliderGenerationDistanceThreshold)
+        {
+            // When player is close enough to the edge of current chunk
+            if (lodMesh.HasReceivedMesh)
+            {
+                _meshCollider.sharedMesh = lodMesh.Mesh;
+                _hasSetCollider = true;
+            }
+        }
+
     }
 
     public void SetVisible(bool visible)

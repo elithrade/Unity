@@ -7,6 +7,8 @@ public class EndlessTerrain : MonoBehaviour
     public static Vector2 ViewerPosition;
     public Material Material;
     public LODInfo[] LevelOfDetails;
+    public int ColliderLODIndex;
+    public const float ColliderGenerationDistanceThreshold = 5f;
 
     private int _chunkSize;
     private int _chunksVisibleInViewDistance;
@@ -32,6 +34,11 @@ public class EndlessTerrain : MonoBehaviour
     private void Update()
     {
         ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z) / _mapGenerator.TerrainData.UniformScale;
+        if (_oldViewerPosition != ViewerPosition)
+        {
+            foreach (TerrainChunk chunk in VisibleTerrainChunksSinceLastUpdate)
+                chunk.UpdateCollisionMesh();
+        }
         if ((_oldViewerPosition - ViewerPosition).magnitude > _viewerMoveThreshold)
         {
             // Prevent calling UpdateVisibleChunks every frame
@@ -59,7 +66,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, LevelOfDetails, viewedChunkCoordinate, _chunkSize, Material));
+                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, ColliderLODIndex, LevelOfDetails, viewedChunkCoordinate, _chunkSize, Material));
                 }
             }
         }
