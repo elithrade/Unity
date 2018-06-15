@@ -2,6 +2,15 @@
 
 public static class MeshGenerator
 {
+    // LOD from 0 to 4
+    public const int NumberOfSupportedLOD = 5;
+    public const int NumberOfSupportedChunkSizes = 9;
+    public const int NumberOfSupportedFlatshadedChunkSizes = 3;
+    // For i = 0; i < 241; i++
+    // If i % 2 == 0
+    public static readonly int[] SupportedChunkSizes  = {48, 72, 96, 120, 144, 168, 192, 216, 240};
+    public static readonly int[] SupportedFlatshadedChunkSizes  = {48, 72, 96};
+
     // Note that this method is called from a thread pool thread
     public static MeshData Generate(
         float[,] heightMap,

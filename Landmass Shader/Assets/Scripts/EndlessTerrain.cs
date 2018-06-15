@@ -14,7 +14,7 @@ public class EndlessTerrain : MonoBehaviour
     private int _chunksVisibleInViewDistance;
     private MapGenerator _mapGenerator;
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
-    public static List<TerrainChunk> VisibleTerrainChunksSinceLastUpdate = new List<TerrainChunk>();
+    public static List<TerrainChunk> VisibleChunks = new List<TerrainChunk>();
     internal static float MaxViewDistance;
     private const float _viewerMoveThreshold = 25f;
     private Vector2 _oldViewerPosition;
@@ -25,7 +25,7 @@ public class EndlessTerrain : MonoBehaviour
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
         _chunkSize = _mapGenerator.MeshChunkSize - 1;
 
-        MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].MaximumViewDistanceForLevelOfDetail;
+        MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].VisibleThreshold;
         _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _chunkSize);
 
         UpdateVisibleChunks(ViewerPosition);
@@ -36,7 +36,7 @@ public class EndlessTerrain : MonoBehaviour
         ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z) / _mapGenerator.TerrainData.UniformScale;
         if (_oldViewerPosition != ViewerPosition)
         {
-            foreach (TerrainChunk chunk in VisibleTerrainChunksSinceLastUpdate)
+            foreach (TerrainChunk chunk in VisibleChunks)
                 chunk.UpdateCollisionMesh();
         }
         if ((_oldViewerPosition - ViewerPosition).magnitude > _viewerMoveThreshold)
@@ -49,7 +49,13 @@ public class EndlessTerrain : MonoBehaviour
 
     private void UpdateVisibleChunks(Vector2 viewerPosition)
     {
-        RemoveVisibleTerrainChunksSinceLastUpdate();
+        HashSet<Vector2> alreadyUpdatedChunks = new HashSet<Vector2>();
+        for (int i = VisibleChunks.Count - 1; i >= 0; i--)
+        {
+            // Update will possibly remove chunk from list, iterate from the end to avoid collection changed index error
+            VisibleChunks[i].UpdateTerrainChunk();
+            alreadyUpdatedChunks.Add(VisibleChunks[i].Coordinate);
+        }
 
         int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
         int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
@@ -59,6 +65,9 @@ public class EndlessTerrain : MonoBehaviour
             for (int xOffset = -_chunksVisibleInViewDistance; xOffset <= _chunksVisibleInViewDistance; xOffset++)
             {
                 Vector2 viewedChunkCoordinate = new Vector2(currentChunkX + xOffset, currentChunkY + yOffset);
+                if (alreadyUpdatedChunks.Contains(viewedChunkCoordinate))
+                    continue;
+
                 if (_terrainChunks.ContainsKey(viewedChunkCoordinate))
                 {
                     TerrainChunk viewedChunk = _terrainChunks[viewedChunkCoordinate];
@@ -70,13 +79,5 @@ public class EndlessTerrain : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void RemoveVisibleTerrainChunksSinceLastUpdate()
-    {
-        for (int i = 0; i < VisibleTerrainChunksSinceLastUpdate.Count; i++)
-            VisibleTerrainChunksSinceLastUpdate[i].SetVisible(false);
-
-        VisibleTerrainChunksSinceLastUpdate.Clear();
     }
 }

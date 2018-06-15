@@ -3,6 +3,7 @@ using UnityEngine;
 public class TerrainChunk
 {
     public GameObject _meshObject;
+    public Vector2 Coordinate;
 
     private readonly Vector2 _position;
     private readonly int size;
@@ -23,6 +24,7 @@ public class TerrainChunk
         _mapGenerator = mapGenerator;
         _colliderLODIndex = colliderLODIndex;
         _levelOfDetails = levelOfDetails;
+        Coordinate = coordinate;
 
         _position = coordinate * size;
         _bounds = new Bounds(_position, Vector2.one * size);
@@ -75,6 +77,7 @@ public class TerrainChunk
         // Although Mathf.Sqrt is more expensive but we need the
         // viewerDistanceFromNearestEdge to compare against each lod mesh's maximum distance.
         float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(EndlessTerrain.ViewerPosition));
+        bool wasVisible = IsVisible();
         bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
         if (visible)
         {
@@ -82,7 +85,7 @@ public class TerrainChunk
             // Find the correct level of detail index and update the lod mesh
             for (int i = 0; i < _levelOfDetails.Length - 1; i++)
             {
-                if (viewerDistanceFromNearestEdge > _levelOfDetails[i].MaximumViewDistanceForLevelOfDetail)
+                if (viewerDistanceFromNearestEdge > _levelOfDetails[i].VisibleThreshold)
                     lodIndex = i + 1;
                 else
                     break;
@@ -101,12 +104,17 @@ public class TerrainChunk
                     lodMesh.RequestMesh(_mapData);
                 }
             }
+            if (wasVisible != visible)
+            {
+                if (visible)
+                    // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
+                    EndlessTerrain.VisibleChunks.Add(this);
+                else
+                    EndlessTerrain.VisibleChunks.Remove(this);
 
-            // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
-            EndlessTerrain.VisibleTerrainChunksSinceLastUpdate.Add(this);
+                SetVisible(visible);
+            }
         }
-
-        SetVisible(visible);
     }
 
     public void UpdateCollisionMesh()
@@ -121,7 +129,7 @@ public class TerrainChunk
         // This method will be called on each update when player is moved.
         float squareDistanceFromPlayerToEdge = _bounds.SqrDistance(EndlessTerrain.ViewerPosition);
         LODMesh lodMesh = _levelOfDetailMeshes[_colliderLODIndex];
-        if (squareDistanceFromPlayerToEdge < _levelOfDetails[_colliderLODIndex].SquaredMaximumViewDistanceForLevelOfDetail)
+        if (squareDistanceFromPlayerToEdge < _levelOfDetails[_colliderLODIndex].SquaredVisibleThreshold)
         {
             // Start requesting mesh when player is approaching to visible view distance
             if (!lodMesh.HasRequestedMesh)

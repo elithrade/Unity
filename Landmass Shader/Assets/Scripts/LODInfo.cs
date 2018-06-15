@@ -1,17 +1,16 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public struct LODInfo
 {
+    [Range(0, MeshGenerator.NumberOfSupportedLOD - 1)]
     public int LevelOfDetail;
-    public float MaximumViewDistanceForLevelOfDetail;
-    public bool UseForCollider;
+    // The view distance that determine LOD visibility
+    public float VisibleThreshold;
 
-    public float SquaredMaximumViewDistanceForLevelOfDetail
+    public float SquaredVisibleThreshold
     {
-        get
-        {
-            return MaximumViewDistanceForLevelOfDetail * MaximumViewDistanceForLevelOfDetail;
-        }
+        get { return VisibleThreshold * VisibleThreshold; }
     }
 }

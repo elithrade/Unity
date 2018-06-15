@@ -7,7 +7,11 @@ public class MapGenerator : MonoBehaviour
 {
     public bool AutoUpdate;
     public DrawMode DrawMode;
-    [Range(0, 6)]
+    [Range(0, MeshGenerator.NumberOfSupportedChunkSizes - 1)]
+    public int ChunkSizeIndex;
+    [Range(0, MeshGenerator.NumberOfSupportedFlatshadedChunkSizes - 1)]
+    public int FlatshadedChunkSizeIndex;
+    [Range(0, MeshGenerator.NumberOfSupportedLOD - 1)]
     public int PreviewLOD;
     public TerrainData TerrainData;
     public NoiseData NoiseData;
@@ -179,9 +183,9 @@ public class MapGenerator : MonoBehaviour
         get
         {
             if (TerrainData.UseFlatShading)
-                return 95;
+                return MeshGenerator.SupportedFlatshadedChunkSizes[FlatshadedChunkSizeIndex] - 1;
             else
-                return 239;
+                return MeshGenerator.SupportedChunkSizes[ChunkSizeIndex] - 1;
         }
     }
 }
