@@ -17,6 +17,6 @@ public class MapDisplay : MonoBehaviour
     {
         MeshFilter.sharedMesh = meshData.CreateMesh();
         // Set the mesh size
-        MeshFilter.transform.localScale = Vector3.one * FindObjectOfType<MapGenerator>().TerrainData.UniformScale;
+        MeshFilter.transform.localScale = Vector3.one * FindObjectOfType<MapGenerator>().MeshSettings.MeshScale;
     }
 }

@@ -2,22 +2,11 @@
 
 public static class MeshGenerator
 {
-    // LOD from 0 to 4
-    public const int NumberOfSupportedLOD = 5;
-    public const int NumberOfSupportedChunkSizes = 9;
-    public const int NumberOfSupportedFlatshadedChunkSizes = 3;
-    // For i = 0; i < 241; i++
-    // If i % 2 == 0
-    public static readonly int[] SupportedChunkSizes  = {48, 72, 96, 120, 144, 168, 192, 216, 240};
-    public static readonly int[] SupportedFlatshadedChunkSizes  = {48, 72, 96};
-
     // Note that this method is called from a thread pool thread
     public static MeshData Generate(
         float[,] heightMap,
-        float heightMultiplier,
-        AnimationCurve heightCurve,
-        int levelOfDetail,
-        bool useFlatShading)
+        MeshSettings settings,
+        int levelOfDetail)
     {
         int increment = levelOfDetail == 0 ? 1 : levelOfDetail * 2;
 
@@ -28,7 +17,7 @@ public static class MeshGenerator
         float topLeftX = (originalMeshSize - 1) / -2f;
         float topLeftZ = (originalMeshSize - 1) / 2f;
 
-        MeshData meshData = new MeshData(borderedSize, useFlatShading);
+        MeshData meshData = new MeshData(borderedSize, settings.UseFlatShading);
 
         // To calculate the normals correctly between chunks
         // we need to take into account the bordered vertices
@@ -73,9 +62,12 @@ public static class MeshGenerator
 
                 // Ensure uvs are properly centred by subtracting the increment
                 Vector2 uv = new Vector2((x - increment) / (float)meshSize, (y - increment) / (float)meshSize);
-                float height = heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
 
-                Vector3 vertex = new Vector3(topLeftX + uv.x * originalMeshSize, height, topLeftZ - uv.y * originalMeshSize);
+                Vector3 vertex = new Vector3(
+                    (topLeftX + uv.x * originalMeshSize) * settings.MeshScale,
+                    heightMap[x, y],
+                    (topLeftZ - uv.y * originalMeshSize) * settings.MeshScale);
+
                 meshData.AddVertex(vertex, uv, vertexIndex);
 
                 // The last row and column cannot form any triangle

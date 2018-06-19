@@ -5,7 +5,7 @@ public class TerrainChunk
     public GameObject _meshObject;
     public Vector2 Coordinate;
 
-    private readonly Vector2 _position;
+    private readonly Vector2 _sampleCentre;
     private readonly int size;
     private Bounds _bounds;
     private MeshRenderer _meshRenderer;
@@ -13,21 +13,22 @@ public class TerrainChunk
     private MeshCollider _meshCollider;
     private MapGenerator _mapGenerator;
     private readonly int _colliderLODIndex;
-    private MapData _mapData;
+    private HeightMap _mapData;
     private int _previousLodIndex = -1;
     private readonly LODInfo[] _levelOfDetails;
     private readonly LODMesh[] _levelOfDetailMeshes;
     private bool _hasSetCollider;
 
-    public TerrainChunk(MapGenerator mapGenerator, int colliderLODIndex, LODInfo[] levelOfDetails, Vector2 coordinate, int size, Material material)
+    public TerrainChunk(MapGenerator mapGenerator, int colliderLODIndex, LODInfo[] levelOfDetails, Vector2 coordinate, float meshWorldSize, Material material)
     {
         _mapGenerator = mapGenerator;
         _colliderLODIndex = colliderLODIndex;
         _levelOfDetails = levelOfDetails;
         Coordinate = coordinate;
 
-        _position = coordinate * size;
-        _bounds = new Bounds(_position, Vector2.one * size);
+        _sampleCentre = coordinate * meshWorldSize / mapGenerator.MeshSettings.MeshScale;
+        Vector2 position = coordinate * meshWorldSize;
+        _bounds = new Bounds(position, Vector2.one * meshWorldSize);
 
         _meshObject = new GameObject("Terrain Chunk");
         _meshRenderer = _meshObject.AddComponent<MeshRenderer>();
@@ -35,9 +36,8 @@ public class TerrainChunk
         _meshFilter = _meshObject.AddComponent<MeshFilter>();
         _meshCollider = _meshObject.AddComponent<MeshCollider>();
 
-        _meshObject.transform.position = new Vector3(_position.x, 0, _position.y) * _mapGenerator.TerrainData.UniformScale;
+        _meshObject.transform.position =  new Vector3(position.x, 0, position.y);
         _meshObject.transform.parent = mapGenerator.transform;
-        _meshObject.transform.localScale = Vector3.one * _mapGenerator.TerrainData.UniformScale;
 
         SetVisible(false);
 
@@ -56,13 +56,15 @@ public class TerrainChunk
                 _levelOfDetailMeshes[i].MeshDataReceived += UpdateCollisionMesh;
         }
 
-        _mapGenerator.RequestMapData(OnMapDataReceived, _position);
+        _mapGenerator.RequestMapData(OnMapDataReceived, _sampleCentre);
     }
 
-    private void OnMapDataReceived(MapData mapData)
+    private void OnMapDataReceived(HeightMap height)
     {
-        _mapData = mapData;
-        Texture2D texture = TextureGenerator.TextureFromColorMap(_mapGenerator.MeshChunkSize, _mapGenerator.MeshChunkSize);
+        _mapData = height;
+        Texture2D texture = TextureGenerator.TextureFromColorMap(
+            _mapGenerator.MeshSettings.NumberOfVerticesPerLine,
+            _mapGenerator.MeshSettings.NumberOfVerticesPerLine);
         _meshRenderer.material.mainTexture = texture;
 
         // Update when we received map data
@@ -71,9 +73,6 @@ public class TerrainChunk
 
     public void UpdateTerrainChunk()
     {
-        if (_mapData == null)
-            return;
-
         // Although Mathf.Sqrt is more expensive but we need the
         // viewerDistanceFromNearestEdge to compare against each lod mesh's maximum distance.
         float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(EndlessTerrain.ViewerPosition));

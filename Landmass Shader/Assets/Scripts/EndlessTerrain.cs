@@ -10,7 +10,7 @@ public class EndlessTerrain : MonoBehaviour
     public int ColliderLODIndex;
     public const float ColliderGenerationDistanceThreshold = 5f;
 
-    private int _chunkSize;
+    private float _meshRealWorldSize;
     private int _chunksVisibleInViewDistance;
     private MapGenerator _mapGenerator;
     private Dictionary<Vector2, TerrainChunk> _terrainChunks;
@@ -23,17 +23,17 @@ public class EndlessTerrain : MonoBehaviour
     {
         _mapGenerator = FindObjectOfType<MapGenerator>();
         _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
-        _chunkSize = _mapGenerator.MeshChunkSize - 1;
+        _meshRealWorldSize = _mapGenerator.MeshSettings.MeshWorldSize;
 
         MaxViewDistance = LevelOfDetails[LevelOfDetails.Length - 1].VisibleThreshold;
-        _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _chunkSize);
+        _chunksVisibleInViewDistance = Mathf.RoundToInt(MaxViewDistance / _meshRealWorldSize);
 
         UpdateVisibleChunks(ViewerPosition);
     }
 
     private void Update()
     {
-        ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z) / _mapGenerator.TerrainData.UniformScale;
+        ViewerPosition = new Vector2(Viewer.position.x, Viewer.position.z);
         if (_oldViewerPosition != ViewerPosition)
         {
             foreach (TerrainChunk chunk in VisibleChunks)
@@ -57,8 +57,8 @@ public class EndlessTerrain : MonoBehaviour
             alreadyUpdatedChunks.Add(VisibleChunks[i].Coordinate);
         }
 
-        int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _chunkSize);
-        int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _chunkSize);
+        int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _meshRealWorldSize);
+        int currentChunkY = Mathf.RoundToInt(viewerPosition.y / _meshRealWorldSize);
 
         for (int yOffset = -_chunksVisibleInViewDistance; yOffset <= _chunksVisibleInViewDistance; yOffset++)
         {
@@ -75,7 +75,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, ColliderLODIndex, LevelOfDetails, viewedChunkCoordinate, _chunkSize, Material));
+                    _terrainChunks.Add(viewedChunkCoordinate, new TerrainChunk(_mapGenerator, ColliderLODIndex, LevelOfDetails, viewedChunkCoordinate, _meshRealWorldSize, Material));
                 }
             }
         }
