@@ -36,7 +36,7 @@ public class TerrainChunk
         _meshFilter = _meshObject.AddComponent<MeshFilter>();
         _meshCollider = _meshObject.AddComponent<MeshCollider>();
 
-        _meshObject.transform.position =  new Vector3(position.x, 0, position.y);
+        _meshObject.transform.position = new Vector3(position.x, 0, position.y);
         _meshObject.transform.parent = mapGenerator.transform;
 
         SetVisible(false);
@@ -78,6 +78,7 @@ public class TerrainChunk
         float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(EndlessTerrain.ViewerPosition));
         bool wasVisible = IsVisible();
         bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
+
         if (visible)
         {
             int lodIndex = 0;
@@ -103,16 +104,16 @@ public class TerrainChunk
                     lodMesh.RequestMesh(_mapData);
                 }
             }
-            if (wasVisible != visible)
-            {
-                if (visible)
-                    // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
-                    EndlessTerrain.VisibleChunks.Add(this);
-                else
-                    EndlessTerrain.VisibleChunks.Remove(this);
+        }
+        if (wasVisible != visible)
+        {
+            if (visible)
+                // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
+                EndlessTerrain.VisibleChunks.Add(this);
+            else
+                EndlessTerrain.VisibleChunks.Remove(this);
 
-                SetVisible(visible);
-            }
+            SetVisible(visible);
         }
     }
 

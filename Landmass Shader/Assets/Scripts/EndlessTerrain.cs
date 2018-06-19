@@ -53,8 +53,8 @@ public class EndlessTerrain : MonoBehaviour
         for (int i = VisibleChunks.Count - 1; i >= 0; i--)
         {
             // Update will possibly remove chunk from list, iterate from the end to avoid collection changed index error
-            VisibleChunks[i].UpdateTerrainChunk();
             alreadyUpdatedChunks.Add(VisibleChunks[i].Coordinate);
+            VisibleChunks[i].UpdateTerrainChunk();
         }
 
         int currentChunkX = Mathf.RoundToInt(viewerPosition.x / _meshRealWorldSize);

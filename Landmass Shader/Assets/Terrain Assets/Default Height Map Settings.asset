@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbc1f1afd88d34c31b71944f793a90ed, type: 3}
   m_Name: Default Height Map Settings
   m_EditorClassIdentifier: 
-  AutoUpdate: 0
+  AutoUpdate: 1
   NoiseSettings:
     NormalizeMode: 1
     Scale: 50
@@ -35,17 +35,17 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.35362583
-      value: 0.26416427
-      inSlope: -0.22779022
-      outSlope: -0.22779022
+      time: 0.3547855
+      value: 0.33530074
+      inSlope: 0.38670182
+      outSlope: 0.38670182
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.1565551
+      outWeight: 0.15929765
     - serializedVersion: 3
-      time: 0.72147787
-      value: 0.41850835
+      time: 0.7530262
+      value: 0.7155859
       inSlope: 1.4523015
       outSlope: 1.4523015
       tangentMode: 0
