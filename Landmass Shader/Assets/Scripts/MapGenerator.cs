@@ -47,9 +47,9 @@ public class MapGenerator : MonoBehaviour
     {
         Thread processMapDataThread = new Thread(() =>
         {
-            lock (_pendingMapDataQueue)
+            HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(MeshSettings.NumberOfVerticesPerLine, MeshSettings.NumberOfVerticesPerLine, HeightMapSettings, centre);
+            // lock (_pendingMapDataQueue)
             {
-                HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(MeshSettings.NumberOfVerticesPerLine, MeshSettings.NumberOfVerticesPerLine, HeightMapSettings, centre);
                 _pendingMapDataQueue.Enqueue(new MapThreadInfo<HeightMap>(heightMap, onMapData));
             }
         });
@@ -61,13 +61,13 @@ public class MapGenerator : MonoBehaviour
     {
         Thread processMeshDataThread = new Thread(() =>
         {
-            lock (_pendingMeshDataQueue)
-            {
-                MeshData meshData = MeshGenerator.Generate(
-                    mapData.Values,
-                    MeshSettings,
-                    lod);
+            MeshData meshData = MeshGenerator.Generate(
+                mapData.Values,
+                MeshSettings,
+                lod);
 
+            // lock (_pendingMeshDataQueue)
+            {
                 _pendingMeshDataQueue.Enqueue(new MapThreadInfo<MeshData>(meshData, onMeshData));
             }
         });
