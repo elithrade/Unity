@@ -11,8 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd03e23c7577d4aad85031f312b5c643, type: 3}
   m_Name: Default Mesh Settings
   m_EditorClassIdentifier: 
-  AutoUpdate: 0
+  AutoUpdate: 1
   UseFlatShading: 0
   MeshScale: 1
   ChunkSizeIndex: 3
-  FlatshadedChunkSizeIndex: 0
+  FlatshadedChunkSizeIndex: 1

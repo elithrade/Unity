@@ -1,11 +1,11 @@
 using System;
 
-public struct MapThreadInfo<T>
+public struct MapThreadInfo
 {
-    public readonly Action<T> Callback;
-    public readonly T Parameters;
+    public readonly Action<object> Callback;
+    public readonly object Parameters;
 
-    public MapThreadInfo(T parameters, Action<T> callback)
+    public MapThreadInfo(object parameters, Action<object> callback)
     {
         Parameters = parameters;
         Callback = callback;

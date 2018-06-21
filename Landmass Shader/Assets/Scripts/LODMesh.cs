@@ -10,24 +10,22 @@ public class LODMesh
     public bool HasReceivedMesh;
     public event Action MeshDataReceived;
 
-    private readonly MapGenerator _mapGenerator;
     private int _lod;
 
-    public LODMesh(MapGenerator mapGenerator, int lod)
+    public LODMesh(int lod)
     {
-        _mapGenerator = mapGenerator;
         _lod = lod;
     }
 
-    public void RequestMesh(HeightMap mapData)
+    public void RequestMesh(HeightMap heightMap, MeshSettings meshSettings)
     {
-        _mapGenerator.RequestMeshData(OnMeshDataReceived, _lod, mapData);
+        ThreadedDataRequester.RequestData(() => MeshGenerator.Generate(heightMap.Values, meshSettings, _lod), OnMeshDataReceived);
         HasRequestedMesh = true;
     }
 
-    private void OnMeshDataReceived(MeshData meshData)
+    private void OnMeshDataReceived(object meshDataObject)
     {
-        Mesh = meshData.CreateMesh();
+        Mesh = ((MeshData) meshDataObject).CreateMesh();
         HasReceivedMesh = true;
 
         MeshDataReceived();

@@ -1,32 +1,41 @@
+using System;
 using UnityEngine;
 
 public class TerrainChunk
 {
+    public const float ColliderGenerationDistanceThreshold = 5f;
+
+    public event Action<TerrainChunk, bool> VisibilityChanged;
     public GameObject _meshObject;
     public Vector2 Coordinate;
 
+    private readonly HeightMapSettings _heightMapSettings;
+    private readonly MeshSettings _meshSettings;
     private readonly Vector2 _sampleCentre;
     private readonly int size;
     private Bounds _bounds;
     private MeshRenderer _meshRenderer;
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
-    private MapGenerator _mapGenerator;
+    private readonly Transform _viewer;
     private readonly int _colliderLODIndex;
-    private HeightMap _mapData;
+    private HeightMap _heightMap;
     private int _previousLodIndex = -1;
     private readonly LODInfo[] _levelOfDetails;
     private readonly LODMesh[] _levelOfDetailMeshes;
     private bool _hasSetCollider;
 
-    public TerrainChunk(MapGenerator mapGenerator, int colliderLODIndex, LODInfo[] levelOfDetails, Vector2 coordinate, float meshWorldSize, Material material)
+    public TerrainChunk(Transform parent, Transform viewer, HeightMapSettings heightMapSettings, MeshSettings meshSettings, int colliderLODIndex, LODInfo[] levelOfDetails, Vector2 coordinate, Material material)
     {
-        _mapGenerator = mapGenerator;
+        _viewer = viewer;
         _colliderLODIndex = colliderLODIndex;
         _levelOfDetails = levelOfDetails;
         Coordinate = coordinate;
+        _heightMapSettings = heightMapSettings;
+        _meshSettings = meshSettings;
 
-        _sampleCentre = coordinate * meshWorldSize / mapGenerator.MeshSettings.MeshScale;
+        float meshWorldSize = _meshSettings.MeshWorldSize;
+        _sampleCentre = coordinate * meshWorldSize / _meshSettings.MeshScale;
         Vector2 position = coordinate * meshWorldSize;
         _bounds = new Bounds(position, Vector2.one * meshWorldSize);
 
@@ -37,7 +46,7 @@ public class TerrainChunk
         _meshCollider = _meshObject.AddComponent<MeshCollider>();
 
         _meshObject.transform.position = new Vector3(position.x, 0, position.y);
-        _meshObject.transform.parent = mapGenerator.transform;
+        _meshObject.transform.parent = parent;
 
         SetVisible(false);
 
@@ -47,7 +56,7 @@ public class TerrainChunk
         _levelOfDetailMeshes = new LODMesh[_levelOfDetails.Length];
         for (int i = 0; i < _levelOfDetailMeshes.Length; i++)
         {
-            _levelOfDetailMeshes[i] = new LODMesh(_mapGenerator, _levelOfDetails[i].LevelOfDetail);
+            _levelOfDetailMeshes[i] = new LODMesh(_levelOfDetails[i].LevelOfDetail);
             _levelOfDetailMeshes[i].MeshDataReceived += UpdateTerrainChunk;
 
             // Make sure update the collision mesh when mesh data received
@@ -56,28 +65,44 @@ public class TerrainChunk
                 _levelOfDetailMeshes[i].MeshDataReceived += UpdateCollisionMesh;
         }
 
-        _mapGenerator.RequestMapData(OnMapDataReceived, _sampleCentre);
+        RequestData();
     }
 
-    private void OnMapDataReceived(HeightMap height)
+    private void OnHeightMapReceived(object heightMapObject)
     {
-        _mapData = height;
+        _heightMap = (HeightMap)heightMapObject;
         Texture2D texture = TextureGenerator.TextureFromColorMap(
-            _mapGenerator.MeshSettings.NumberOfVerticesPerLine,
-            _mapGenerator.MeshSettings.NumberOfVerticesPerLine);
+            _meshSettings.NumberOfVerticesPerLine,
+            _meshSettings.NumberOfVerticesPerLine);
         _meshRenderer.material.mainTexture = texture;
 
         // Update when we received map data
         UpdateTerrainChunk();
     }
 
+    internal void RequestData()
+    {
+        Func<object> generateData = () => HeightMapGenerator.GenerateHeightMap(
+            _meshSettings.NumberOfVerticesPerLine,
+            _meshSettings.NumberOfVerticesPerLine,
+            _heightMapSettings,
+            _sampleCentre);
+
+        ThreadedDataRequester.RequestData(generateData, OnHeightMapReceived);
+    }
+
+    Vector2 ViewerPosition
+    {
+        get { return new Vector2(_viewer.position.x, _viewer.position.z); }
+    }
+
     public void UpdateTerrainChunk()
     {
         // Although Mathf.Sqrt is more expensive but we need the
         // viewerDistanceFromNearestEdge to compare against each lod mesh's maximum distance.
-        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(EndlessTerrain.ViewerPosition));
+        float viewerDistanceFromNearestEdge = Mathf.Sqrt(_bounds.SqrDistance(ViewerPosition));
         bool wasVisible = IsVisible();
-        bool visible = viewerDistanceFromNearestEdge <= EndlessTerrain.MaxViewDistance;
+        bool visible = viewerDistanceFromNearestEdge <= _levelOfDetails[_levelOfDetails.Length - 1].VisibleThreshold;
 
         if (visible)
         {
@@ -101,19 +126,16 @@ public class TerrainChunk
                 }
                 else if (!lodMesh.HasRequestedMesh)
                 {
-                    lodMesh.RequestMesh(_mapData);
+                    lodMesh.RequestMesh(_heightMap, _meshSettings);
                 }
             }
         }
         if (wasVisible != visible)
         {
-            if (visible)
-                // Add ourself to visible terrain chunk list since LODMesh can call UpdateTerrainChunk on mesh received
-                EndlessTerrain.VisibleChunks.Add(this);
-            else
-                EndlessTerrain.VisibleChunks.Remove(this);
-
             SetVisible(visible);
+
+            if (VisibilityChanged != null)
+                VisibilityChanged.Invoke(this, visible);
         }
     }
 
@@ -127,15 +149,15 @@ public class TerrainChunk
         // create collider and we need to constantly checking player
         // position, otherwise it will be too late to create collider.
         // This method will be called on each update when player is moved.
-        float squareDistanceFromPlayerToEdge = _bounds.SqrDistance(EndlessTerrain.ViewerPosition);
+        float squareDistanceFromPlayerToEdge = _bounds.SqrDistance(ViewerPosition);
         LODMesh lodMesh = _levelOfDetailMeshes[_colliderLODIndex];
         if (squareDistanceFromPlayerToEdge < _levelOfDetails[_colliderLODIndex].SquaredVisibleThreshold)
         {
             // Start requesting mesh when player is approaching to visible view distance
             if (!lodMesh.HasRequestedMesh)
-                lodMesh.RequestMesh(_mapData);
+                lodMesh.RequestMesh(_heightMap, _meshSettings);
         }
-        if (squareDistanceFromPlayerToEdge < EndlessTerrain.ColliderGenerationDistanceThreshold * EndlessTerrain.ColliderGenerationDistanceThreshold)
+        if (squareDistanceFromPlayerToEdge < ColliderGenerationDistanceThreshold * ColliderGenerationDistanceThreshold)
         {
             // When player is close enough to the edge of current chunk
             if (lodMesh.HasReceivedMesh)

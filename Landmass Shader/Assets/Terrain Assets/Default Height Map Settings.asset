@@ -15,12 +15,12 @@ MonoBehaviour:
   NoiseSettings:
     NormalizeMode: 1
     Scale: 50
-    Octave: 6
-    Persistence: 0.6
+    Octave: 5
+    Persistence: 0.448
     Lacunarity: 2
-    Seed: 0
+    Seed: 7
     Offset: {x: 0, y: 0}
-  HeightMultiplier: 50
+  HeightMultiplier: 40
   UseFalloff: 0
   HeightCurve:
     serializedVersion: 2
@@ -35,23 +35,23 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.3547855
-      value: 0.33530074
-      inSlope: 0.38670182
-      outSlope: 0.38670182
+      time: 0.35244906
+      value: 0.43153507
+      inSlope: 0.22635105
+      outSlope: 0.22635105
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.15929765
+      outWeight: 0.14761856
     - serializedVersion: 3
-      time: 0.7530262
-      value: 0.7155859
-      inSlope: 1.4523015
-      outSlope: 1.4523015
+      time: 0.72501105
+      value: 0.72813624
+      inSlope: 0.22015625
+      outSlope: 0.22015625
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.33333334
+      outWeight: 0.19565776
     - serializedVersion: 3
       time: 1
       value: 1

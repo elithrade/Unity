@@ -13,66 +13,10 @@ public class MapGenerator : MonoBehaviour
     public HeightMapSettings HeightMapSettings;
     public TextureData TextureData;
     public Material TextureMaterial;
-
-    private Queue<MapThreadInfo<HeightMap>> _pendingMapDataQueue;
-    private Queue<MapThreadInfo<MeshData>> _pendingMeshDataQueue;
     private float[,] _falloffMap;
 
     private void Start()
     {
-        TextureData.Apply(TextureMaterial);
-        TextureData.SetMinMaxHeight(TextureMaterial, HeightMapSettings.MinHeight, HeightMapSettings.MaxHeight);
-
-        _pendingMapDataQueue = new Queue<MapThreadInfo<HeightMap>>();
-        _pendingMeshDataQueue = new Queue<MapThreadInfo<MeshData>>();
-    }
-
-    private void Update()
-    {
-        Process<HeightMap>(_pendingMapDataQueue);
-        Process<MeshData>(_pendingMeshDataQueue);
-    }
-
-    private void Process<T>(Queue<MapThreadInfo<T>> queue)
-    {
-        // Locking inside Update method impacts performance a lot
-        while (queue.Count > 0)
-        {
-            MapThreadInfo<T> info = queue.Dequeue();
-            info.InvokeCallback();
-        }
-    }
-
-    public void RequestMapData(Action<HeightMap> onMapData, Vector2 centre)
-    {
-        Thread processMapDataThread = new Thread(() =>
-        {
-            HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(MeshSettings.NumberOfVerticesPerLine, MeshSettings.NumberOfVerticesPerLine, HeightMapSettings, centre);
-            // lock (_pendingMapDataQueue)
-            {
-                _pendingMapDataQueue.Enqueue(new MapThreadInfo<HeightMap>(heightMap, onMapData));
-            }
-        });
-
-        processMapDataThread.Start();
-    }
-
-    public void RequestMeshData(Action<MeshData> onMeshData, int lod, HeightMap mapData)
-    {
-        Thread processMeshDataThread = new Thread(() =>
-        {
-            MeshData meshData = MeshGenerator.Generate(
-                mapData.Values,
-                MeshSettings,
-                lod);
-
-            // lock (_pendingMeshDataQueue)
-            {
-                _pendingMeshDataQueue.Enqueue(new MapThreadInfo<MeshData>(meshData, onMeshData));
-            }
-        });
-
-        processMeshDataThread.Start();
     }
 
     public void DrawMap()
