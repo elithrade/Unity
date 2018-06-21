@@ -113,7 +113,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!43 &68902493
+--- !u!43 &180502922
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -304,15 +304,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 19
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 100006, guid: c6453f8e1f814744d8b94e5a6d1f9942, type: 2}
       propertyPath: m_IsActive
@@ -452,8 +452,12 @@ MonoBehaviour:
   LevelOfDetails:
   - LevelOfDetail: 0
     VisibleThreshold: 200
-  - LevelOfDetail: 0
+  - LevelOfDetail: 1
     VisibleThreshold: 400
+  - LevelOfDetail: 2
+    VisibleThreshold: 600
+  - LevelOfDetail: 3
+    VisibleThreshold: 800
   ColliderLODIndex: 0
   MeshSettings: {fileID: 11400000, guid: 945a10ba438374d67bb21d0593773440, type: 2}
   HeightMapSettings: {fileID: 11400000, guid: 654bee5417f0c4b7a9f5a07aedf4a259, type: 2}
@@ -528,7 +532,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1556444300}
-  m_Mesh: {fileID: 68902493}
+  m_Mesh: {fileID: 180502922}
 --- !u!4 &1556444303
 Transform:
   m_ObjectHideFlags: 0
