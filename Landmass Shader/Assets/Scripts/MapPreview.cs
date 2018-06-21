@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class MapGenerator : MonoBehaviour
+public class MapPreview : MonoBehaviour
 {
+    public Renderer TextureRenderer;
+    public MeshFilter MeshFilter;
+    public MeshRenderer MeshRenderer;
     public bool AutoUpdate;
     public DrawMode DrawMode;
     [Range(0, MeshSettings.NumberOfSupportedLOD - 1)]
@@ -15,30 +15,44 @@ public class MapGenerator : MonoBehaviour
     public Material TextureMaterial;
     private float[,] _falloffMap;
 
-    private void Start()
+    public void DrawTexture(Texture2D texture)
     {
+        // TextureRenderer.sharedMaterial will apply material without running the game
+        TextureRenderer.sharedMaterial.mainTexture = texture;
+        TextureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height) / 10f;
+
+        TextureRenderer.gameObject.SetActive(true);
+        MeshFilter.gameObject.SetActive(false);
+    }
+
+    internal void DrawMesh(MeshData meshData)
+    {
+        MeshFilter.sharedMesh = meshData.CreateMesh();
+        // Set the mesh size
+        MeshFilter.transform.localScale = Vector3.one * FindObjectOfType<TerrainGenerator>().MeshSettings.MeshScale;
+
+        TextureRenderer.gameObject.SetActive(false);
+        MeshFilter.gameObject.SetActive(true);
     }
 
     public void DrawMap()
     {
         TextureData.SetMinMaxHeight(TextureMaterial, HeightMapSettings.MinHeight, HeightMapSettings.MaxHeight);
-
-        MapDisplay display = FindObjectOfType<MapDisplay>();
-        if (display == null)
-            return;
+        TextureData.Apply(TextureMaterial);
 
         HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(MeshSettings.NumberOfVerticesPerLine, MeshSettings.NumberOfVerticesPerLine, HeightMapSettings, Vector2.zero);
         if (DrawMode == DrawMode.Noise)
         {
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap.Values));
+            DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap));
         }
         else if (DrawMode == DrawMode.Mesh)
         {
-            display.DrawMesh(MeshGenerator.Generate(heightMap.Values, MeshSettings, PreviewLOD));
+            DrawMesh(MeshGenerator.Generate(heightMap.Values, MeshSettings, PreviewLOD));
         }
         else if (DrawMode == DrawMode.Falloff)
         {
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(FalloffGenerator.GenerateFalloffMap(MeshSettings.NumberOfVerticesPerLine)));
+            DrawTexture(TextureGenerator.TextureFromHeightMap(
+                new HeightMap(FalloffGenerator.GenerateFalloffMap(MeshSettings.NumberOfVerticesPerLine),0, 1)));
         }
     }
 

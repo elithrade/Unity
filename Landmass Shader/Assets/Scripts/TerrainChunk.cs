@@ -71,9 +71,7 @@ public class TerrainChunk
     private void OnHeightMapReceived(object heightMapObject)
     {
         _heightMap = (HeightMap)heightMapObject;
-        Texture2D texture = TextureGenerator.TextureFromColorMap(
-            _meshSettings.NumberOfVerticesPerLine,
-            _meshSettings.NumberOfVerticesPerLine);
+        Texture2D texture = TextureGenerator.TextureFromHeightMap(_heightMap);
         _meshRenderer.material.mainTexture = texture;
 
         // Update when we received map data
